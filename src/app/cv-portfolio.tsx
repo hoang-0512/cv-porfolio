@@ -4,8 +4,6 @@ import {
   Award,
   Calendar,
   ExternalLink,
-  Github,
-  Linkedin,
   Mail,
   MapPin,
   Moon,
@@ -14,7 +12,6 @@ import {
   Sun,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import {
   Bar,
@@ -25,67 +22,10 @@ import {
   YAxis,
 } from "recharts";
 
-import { Badge } from "@/components/ui/badge";
+
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
 
-const gradeData = [
-  { subject: "Toán", grade: 8.5 },
-  { subject: "Lý", grade: 9.0 },
-  { subject: "Hóa", grade: 8.2 },
-  { subject: "Anh", grade: 8.8 },
-  { subject: "Tin", grade: 9.5 },
-  { subject: "Văn", grade: 7.8 },
-];
-
-const skillsData = [
-  { skill: "JavaScript", level: 90 },
-  { skill: "React", level: 85 },
-  { skill: "Node.js", level: 80 },
-  { skill: "Python", level: 75 },
-  { skill: "SQL", level: 70 },
-  { skill: "UI/UX", level: 65 },
-];
-
-const certificates = [
-  {
-    name: "AWS Cloud Practitioner",
-    issuer: "Amazon Web Services",
-    date: "2024",
-    image: "/placeholder.svg?height=60&width=60",
-  },
-  {
-    name: "Google Analytics Certified",
-    issuer: "Google",
-    date: "2023",
-    image: "/placeholder.svg?height=60&width=60",
-  },
-  {
-    name: "React Developer Certificate",
-    issuer: "Meta",
-    date: "2023",
-    image: "/placeholder.svg?height=60&width=60",
-  },
-  {
-    name: "JavaScript Algorithms",
-    issuer: "freeCodeCamp",
-    date: "2022",
-    image: "/placeholder.svg?height=60&width=60",
-  },
-];
+import { gradeData, skillsData, certificates } from "@/data/constants";
 
 const projects = [
   {
@@ -181,7 +121,7 @@ export default function Component() {
                     darkMode ? "text-gray-100" : "text-gray-900"
                   }`}
                 >
-                  Nguyễn Văn An
+                  Trương Nguyễn Hoàng
                 </h1>
                 <p
                   className={`${
@@ -195,7 +135,7 @@ export default function Component() {
                     darkMode ? "text-gray-300" : "text-gray-600"
                   }`}
                 >
-                  Passionate developer với 3+ năm kinh nghiệm trong việc xây
+                  Passionate developer với 1 năm kinh nghiệm trong việc xây
                   dựng ứng dụng web hiện đại. Chuyên về React, Node.js và cloud
                   technologies.
                 </p>
@@ -210,11 +150,11 @@ export default function Component() {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Mail className="w-4 h-4" />
-                    nguyenvanan@email.com
+                    truongnguyenhoang0512@gmail.com
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Phone className="w-4 h-4" />
-                    (+84) 123 456 789
+                    (+84) 973 335 3430
                   </div>
                 </div>
               </div>
@@ -265,7 +205,7 @@ export default function Component() {
                 darkMode ? "text-gray-400" : "text-gray-500"
               } mb-4`}
             >
-              Điểm trung bình các môn học chính
+              Điểm trung bình các kì học
             </p>
             <div className="h-[240px]">
               <ResponsiveContainer width="100%" height="100%">
