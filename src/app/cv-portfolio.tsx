@@ -20,48 +20,47 @@ import {
   ResponsiveContainer,
   XAxis,
   YAxis,
+  Tooltip,
 } from "recharts";
-
-
 import { Button } from "@/components/ui/button";
-
 import { gradeData, skillsData, certificates } from "@/data/constants";
 
 const projects = [
-  {
-    title: "E-commerce Platform",
-    description:
-      "Xây dựng nền tảng thương mại điện tử với React, Node.js và MongoDB. Tích hợp thanh toán online và quản lý kho hàng.",
-    tech: ["React", "Node.js", "MongoDB", "Stripe"],
-    github: "https://github.com/username/ecommerce",
-    demo: "https://demo-ecommerce.com",
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    title: "Task Management App",
-    description:
-      "Ứng dụng quản lý công việc với tính năng real-time collaboration, drag & drop và notification system.",
-    tech: ["Next.js", "TypeScript", "Prisma", "Socket.io"],
-    github: "https://github.com/username/taskapp",
-    demo: "https://demo-taskapp.com",
-    image: "/placeholder.svg?height=200&width=300",
-  },
-  {
-    title: "Weather Dashboard",
-    description:
-      "Dashboard hiển thị thông tin thời tiết với charts và maps tương tác, sử dụng API từ OpenWeatherMap.",
-    tech: ["Vue.js", "Chart.js", "Leaflet", "API"],
-    github: "https://github.com/username/weather",
-    demo: "https://demo-weather.com",
-    image: "/placeholder.svg?height=200&width=300",
-  },
+  // ... giữ nguyên projects data
 ];
+
+// Thêm CSS styles cho animation
+const carouselStyles = `
+  .certificate-carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+  }
+  .certificate-item {
+    min-width: 33.333%;
+    flex: 0 0 33.333%;
+    padding: 0 8px;
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+  }
+  .certificate-item-entering {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  .certificate-item-exiting {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+`;
 
 export default function Component() {
   const [darkMode, setDarkMode] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const certificatesPerPage = 3;
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
-    // Kiểm tra theme từ localStorage hoặc system preference
+    // Theme handling
     if (
       localStorage.theme === "dark" ||
       (!("theme" in localStorage) &&
@@ -75,6 +74,23 @@ export default function Component() {
     }
   }, []);
 
+  // Carousel rotation with transition
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setActiveIndex((current) =>
+          current + certificatesPerPage >= certificates.length
+            ? 0
+            : current + certificatesPerPage
+        );
+        setIsTransitioning(false);
+      }, 500); // Match with CSS transition duration
+    }, 5000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
     if (!darkMode) {
@@ -86,6 +102,11 @@ export default function Component() {
     }
   };
 
+  const visibleCertificates = certificates.slice(
+    activeIndex,
+    activeIndex + certificatesPerPage
+  );
+
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
@@ -94,6 +115,9 @@ export default function Component() {
           : "bg-gradient-to-br from-blue-50 to-indigo-100"
       }`}
     >
+      {/* Inject CSS styles */}
+      <style>{carouselStyles}</style>
+
       {/* Header */}
       <div
         className={`sticky top-0 z-10 mb-6 ${
@@ -135,8 +159,8 @@ export default function Component() {
                     darkMode ? "text-gray-300" : "text-gray-600"
                   }`}
                 >
-                  Passionate developer với 1 năm kinh nghiệm trong việc xây
-                  dựng ứng dụng web hiện đại. Chuyên về React, Node.js và cloud
+                  Passionate developer với 1 năm kinh nghiệm trong việc xây dựng
+                  ứng dụng web hiện đại. Chuyên về React, Node.js và cloud
                   technologies.
                 </p>
                 <div
@@ -170,6 +194,34 @@ export default function Component() {
               ) : (
                 <Moon className="h-4 w-4" />
               )}
+            </Button>
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Star className="w-4 h-4" />
+              GitHub
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Calendar className="w-4 h-4" />
+              Facebook
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+            >
+              <Phone className="w-4 h-4" />
+              Gmail
             </Button>
           </div>
         </div>
@@ -235,6 +287,21 @@ export default function Component() {
                       fontSize: 12,
                       fill: darkMode ? "#9CA3AF" : "#4B5563",
                     }}
+                  />
+                  <Tooltip
+                    cursor={{
+                      fill: darkMode
+                        ? "rgba(55, 65, 81, 0.3)"
+                        : "rgba(229, 231, 235, 0.3)",
+                    }}
+                    contentStyle={{
+                      backgroundColor: darkMode ? "#1F2937" : "#FFFFFF",
+                      border: "none",
+                      borderRadius: "6px",
+                      boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                    }}
+                    labelStyle={{ color: darkMode ? "#E5E7EB" : "#374151" }}
+                    itemStyle={{ color: darkMode ? "#10B981" : "#14b8a6" }}
                   />
                   <Bar
                     dataKey="grade"
@@ -323,13 +390,13 @@ export default function Component() {
           </div>
         </div>
 
-        {/* Certificates */}
+        {/* Certificates Section */}
         <div
           className={`rounded-lg border ${
             darkMode
               ? "bg-gray-800 border-gray-700"
               : "bg-white border-gray-200"
-          } p-6`}
+          } p-6 overflow-hidden`}
         >
           <div className="flex items-center gap-2 mb-1">
             <Award
@@ -353,60 +420,104 @@ export default function Component() {
             Các chứng chỉ chuyên môn đã đạt được
           </p>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {certificates.map((cert, index) => (
-              <div
-                key={index}
-                className={`group p-4 ${
-                  darkMode ? "bg-gray-700" : "bg-white"
-                } border ${
-                  darkMode
-                    ? "border-gray-600 hover:border-gray-500"
-                    : "border-gray-200 hover:border-gray-400"
-                } rounded-lg transition-all duration-300`}
-              >
-                <div className="flex flex-col items-center text-center">
-                  <div className="relative w-[60px] h-[60px] mb-4">
-                    <Image
-                      src={cert.image}
-                      alt={cert.name}
-                      fill
-                      className="object-contain"
-                    />
+          {/* Certificate Carousel */}
+          <div className="relative overflow-hidden">
+            <div className="certificate-carousel flex">
+              {visibleCertificates.map((cert, index) => (
+                <div
+                  key={`${activeIndex}-${index}`}
+                  className={`certificate-item p-4 ${
+                    darkMode ? "bg-gray-700" : "bg-white"
+                  } border ${
+                    darkMode
+                      ? "border-gray-600 hover:border-gray-500"
+                      : "border-gray-200 hover:border-gray-400"
+                  } rounded-lg transition-colors duration-300 flex flex-col ${
+                    isTransitioning
+                      ? index === 0
+                        ? "certificate-item-entering"
+                        : "certificate-item-exiting"
+                      : ""
+                  }`}
+                >
+                  <div className="flex items-center justify-center mb-4 h-16">
+                    <div className="relative w-[50px] h-[50px] flex-shrink-0">
+                      <Image
+                        src={cert.image}
+                        alt={cert.name}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
                   </div>
-                  <h4
-                    className={`font-medium text-sm mb-1 transition-colors ${
-                      darkMode
-                        ? "text-gray-100 group-hover:text-blue-400"
-                        : "text-gray-800 group-hover:text-blue-600"
-                    }`}
-                  >
-                    {cert.name}
-                  </h4>
-                  <p
-                    className={`text-xs mb-2 ${
-                      darkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  >
-                    {cert.issuer}
-                  </p>
-                  <div className="flex items-center gap-1">
-                    <Calendar
-                      className={`w-3 h-3 ${
-                        darkMode ? "text-gray-500" : "text-gray-400"
-                      }`}
-                    />
-                    <p
-                      className={`text-xs ${
-                        darkMode ? "text-gray-500" : "text-gray-400"
+                  <div className="flex-1 flex flex-col">
+                    <h4
+                      className={`font-medium text-sm text-center mb-2 line-clamp-2 h-10 ${
+                        darkMode
+                          ? "text-gray-100 group-hover:text-blue-400"
+                          : "text-gray-800 group-hover:text-blue-600"
                       }`}
                     >
-                      {cert.date}
-                    </p>
+                      {cert.name}
+                    </h4>
+                    <div className="mt-auto">
+                      <p
+                        className={`text-xs text-center mb-1 truncate ${
+                          darkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        {cert.issuer}
+                      </p>
+                      <div className="flex items-center justify-center gap-1">
+                        <Calendar
+                          className={`w-3 h-3 ${
+                            darkMode ? "text-gray-500" : "text-gray-400"
+                          }`}
+                        />
+                        <p
+                          className={`text-xs ${
+                            darkMode ? "text-gray-500" : "text-gray-400"
+                          }`}
+                        >
+                          {cert.date}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+
+            {/* Progress Indicators */}
+            <div className="flex justify-center mt-4 gap-2">
+              {Array.from(
+                {
+                  length: Math.ceil(certificates.length / certificatesPerPage),
+                },
+                (_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => {
+                      setIsTransitioning(true);
+                      setTimeout(() => {
+                        setActiveIndex(i * certificatesPerPage);
+                        setIsTransitioning(false);
+                      }, 500);
+                    }}
+                    className={`w-2 h-2 rounded-full transition-colors ${
+                      Math.floor(activeIndex / certificatesPerPage) === i
+                        ? darkMode
+                          ? "bg-green-400"
+                          : "bg-green-600"
+                        : darkMode
+                        ? "bg-gray-600"
+                        : "bg-gray-300"
+                    }`}
+                    aria-label={`Go to slide ${i + 1}`}
+                  />
+                )
+              )}
+            </div>
           </div>
         </div>
 
@@ -571,7 +682,8 @@ export default function Component() {
       <footer className="bg-white border-t mt-12">
         <div className="max-w-6xl mx-auto px-4 py-6 text-center">
           <p className="text-gray-600">
-            © 2024 Nguyễn Văn An. Được tạo với ❤️ bằng Next.js và Tailwind CSS
+            © 2025 Trương Nguyễn Hoàng. Được tạo với ❤️ bằng Next.js và Tailwind
+            CSS
           </p>
         </div>
       </footer>
