@@ -60,3 +60,33 @@ export const certificates = [
     image: "/placeholder.svg?height=60&width=60",
   },
 ];
+
+export const projects = [
+  {
+    title: "E-commerce Platform",
+    description:
+      "Xây dựng nền tảng thương mại điện tử với React, Node.js và MongoDB. Tích hợp thanh toán online.",
+    tech: ["React", "Node.js", "MongoDB", "Stripe"],
+    image: "/placeholder.svg?height=200&width=300",
+    githubUrl: "https://github.com/yourusername/ecommerce-platform",
+    demoUrl: "https://ecommerce-demo.yourdomain.com",
+  },
+  {
+    title: "Task Management App",
+    description:
+      "Ứng dụng quản lý công việc với tính năng real-time collaboration, drag & drop và reminders",
+    tech: ["Next.js", "TypeScript", "Prisma"],
+    image: "/placeholder.svg?height=200&width=300",
+    githubUrl: "https://github.com/yourusername/task-management-app",
+    demoUrl: "https://task-app-demo.yourdomain.com",
+  },
+  {
+    title: "Weather Dashboard",
+    description:
+      "Dashboard hiển thị thông tin thời tiết với OpenWeather maps trong các đô thị API và highcharts",
+    tech: ["Vue.js", "Chart.js", "Leaflet", "API"],
+    image: "/placeholder.svg?height=200&width=300",
+    githubUrl: "https://github.com/yourusername/weather-dashboard",
+    demoUrl: "https://weather-demo.yourdomain.com",
+  },
+];

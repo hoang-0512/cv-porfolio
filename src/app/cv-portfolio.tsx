@@ -23,21 +23,23 @@ import {
   Tooltip,
 } from "recharts";
 import { Button } from "@/components/ui/button";
-import { gradeData, skillsData, certificates } from "@/data/constants";
-
-const projects = [
-  // ... giữ nguyên projects data
-];
+import {
+  gradeData,
+  skillsData,
+  certificates,
+  projects,
+} from "@/data/constants";
 
 // Thêm CSS styles cho animation
 const carouselStyles = `
   .certificate-carousel {
     display: flex;
     transition: transform 0.5s ease-in-out;
+    gap: 20px; /* Add gap between flex items */
   }
   .certificate-item {
-    min-width: 33.333%;
-    flex: 0 0 33.333%;
+    min-width: calc(33.333% - 14px); /* Adjust width to account for gap */
+    flex: 0 0 calc(33.333% - 14px);
     padding: 0 8px;
     opacity: 1;
     transform: translateX(0);
@@ -584,7 +586,7 @@ export default function Component() {
                   >
                     {project.description}
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 mb-4">
                     {project.tech.map((tech, techIndex) => (
                       <span
                         key={techIndex}
@@ -597,6 +599,82 @@ export default function Component() {
                         {tech}
                       </span>
                     ))}
+                  </div>
+
+                  {/* New buttons with improved visibility */}
+                  <div className="flex gap-3 mt-auto pt-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={`flex-1 ${
+                        darkMode
+                          ? "bg-gray-700 text-white border-gray-600 hover:bg-gray-600"
+                          : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+                      }`}
+                      asChild
+                    >
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <svg
+                            className="w-4 h-4"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                            <path d="M9 18c-4.51 2-5-2-7-2" />
+                          </svg>
+                          <span className="font-medium">Git</span>
+                        </div>
+                      </a>
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={`flex-1 ${
+                        darkMode
+                          ? "bg-blue-700 text-white border-blue-600 hover:bg-blue-600"
+                          : "bg-blue-100 text-blue-800 hover:bg-blue-200"
+                      }`}
+                      asChild
+                    >
+                      <a
+                        href={project.demoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <div className="flex items-center justify-center gap-2">
+                          <svg
+                            className="w-4 h-4"
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                            <polyline points="15 3 21 3 21 9" />
+                            <line x1="10" y1="14" x2="21" y2="3" />
+                          </svg>
+                          <span className="font-medium">Demo</span>
+                        </div>
+                      </a>
+                    </Button>
                   </div>
                 </div>
               </div>
