@@ -131,16 +131,17 @@ export default function Component() {
         <div className="container mx-auto p-4">
           <div className="flex justify-between items-start">
             <div className="flex items-start gap-4">
-              <div className="relative">
-                <Image
-                  src="/placeholder.svg?height=120&width=120"
-                  alt="Profile"
-                  width={80}
-                  height={80}
-                  className="rounded-full bg-gray-100"
-                />
-                <div className="absolute bottom-0 right-0 bg-green-500 w-2.5 h-2.5 rounded-full border-2 border-white"></div>
-              </div>
+              <div className="relative animate-float">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-lg opacity-30"></div>
+              <Image
+                src="/placeholder.svg?height=140&width=140"
+                alt="Profile"
+                width={140}
+                height={140}
+                className="relative rounded-full border-4 border-white shadow-xl"
+              />
+              <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
+            </div>
               <div className="flex-1">
                 <h1
                   className={`text-xl font-semibold mb-1 ${
@@ -198,6 +199,7 @@ export default function Component() {
               )}
             </Button>
           </div>
+          
 
           {/* Navigation Buttons */}
           <div className="flex flex-wrap gap-2 mt-2">
