@@ -11,8 +11,9 @@ import {
   Star,
   Sun,
 } from "lucide-react";
+import SplashCursor from '@/components/SplashCursor';
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Bar,
   BarChart,
@@ -29,6 +30,55 @@ import {
   certificates,
   projects,
 } from "@/data/constants";
+
+// Animated Counter Component
+const AnimatedCounter = ({ value, suffix = "", color }: { value: string | number, suffix?: string, color: string }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  const counterRef = useRef(null);
+  
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          let startValue = 0;
+          const endValue = parseInt(value.toString());
+          const duration = 2000;
+          const increment = Math.ceil(endValue / (duration / 30));
+          
+          const timer = setInterval(() => {
+            startValue += increment;
+            if (startValue > endValue) {
+              setDisplayValue(endValue);
+              clearInterval(timer);
+            } else {
+              setDisplayValue(startValue);
+            }
+          }, 30);
+          
+          return () => clearInterval(timer);
+        }
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (counterRef.current) {
+      observer.observe(counterRef.current);
+    }
+    
+    return () => {
+      if (counterRef.current) {
+        observer.unobserve(counterRef.current);
+      }
+    };
+  }, [value]);
+  
+  return (
+    <p ref={counterRef} className={`stat-number text-xl font-semibold animate-pulse-slow ${color}`}>
+      {displayValue}{suffix}
+    </p>
+  );
+};
 
 // Thêm CSS styles cho animation
 const carouselStyles = `
@@ -52,6 +102,68 @@ const carouselStyles = `
   .certificate-item-exiting {
     opacity: 0;
     transform: translateX(-20px);
+  }
+  
+  /* Stats animation styles */
+  .animate-pulse-slow {
+    animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+    .stat-number {
+    transition: all 0.3s ease;
+  }
+  
+  /* Nav button animations */
+  @keyframes gentle-pulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.03);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  .nav-btn:hover {
+    animation: gentle-pulse 0.8s ease-in-out;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .stat-number:hover {
+    transform: scale(1.2);
+    filter: brightness(1.2);
+    text-shadow: 0 0 8px currentColor;
+  }
+  
+  .stat-card {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+    transform: translateX(-100%);
+    transition: transform 0.5s ease;
+  }
+  
+  .stat-card:hover::before {
+    transform: translateX(100%);
   }
 `;
 
@@ -108,7 +220,22 @@ export default function Component() {
     activeIndex,
     activeIndex + certificatesPerPage
   );
-
+  const [scrolled, setScrolled] = useState(false);
+  
+  // Add scroll event listener
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 10;
+      if (isScrolled !== scrolled) {
+        setScrolled(isScrolled);
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrolled]);
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
@@ -116,30 +243,38 @@ export default function Component() {
           ? "bg-gray-900"
           : "bg-gradient-to-br from-blue-50 to-indigo-100"
       }`}
-    >
+    >      {/* Fluid cursor effect */}
+      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 100 }}>        <SplashCursor 
+          SPLAT_RADIUS={0.06}
+          CURL={0.6}
+          DENSITY_DISSIPATION={9.5}
+          VELOCITY_DISSIPATION={6.5}
+          COLOR_UPDATE_SPEED={3}
+          SPLAT_FORCE={1500}
+          TRANSPARENT={true}
+        />
+      </div>
+      
       {/* Inject CSS styles */}
-      <style>{carouselStyles}</style>
-
-      {/* Header */}
-      <div
-        className={`sticky top-0 z-10 mb-6 ${
+      <style>{carouselStyles}</style>      {/* Header */}      <div
+        className={`relative w-full mb-8 ${scrolled ? 'py-4' : 'py-6'} ${
           darkMode
-            ? "bg-gray-800/95 border-gray-700"
-            : "bg-white/95 border-gray-200"
-        } backdrop-blur-sm border-b transition-colors duration-300`}
+            ? "bg-gray-800 border-gray-700"
+            : "bg-white border-gray-200"
+        } border-b transition-all duration-300 shadow-sm`}
       >
-        <div className="container mx-auto p-4">
-          <div className="flex justify-between items-start">
-            <div className="flex items-start gap-4">
-              <div className="relative animate-float">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-lg opacity-30"></div>
-              <Image
-                src="/placeholder.svg?height=140&width=140"
+        <div className="container mx-auto px-4">
+          <div className="flex justify-between items-start py-2">
+            <div className="flex items-start gap-6">
+              <div className="relative animate-float mt-1">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-lg opacity-30"></div>
+                <Image
+                src="/src/public/Screenshot 2025-06-20 234519.png"
                 alt="Profile"
                 width={140}
                 height={140}
                 className="relative rounded-full border-4 border-white shadow-xl"
-              />
+                />
               <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
             </div>
               <div className="flex-1">
@@ -198,41 +333,146 @@ export default function Component() {
                 <Moon className="h-4 w-4" />
               )}
             </Button>
-          </div>
-          
 
-          {/* Navigation Buttons */}
-          <div className="flex flex-wrap gap-2 mt-2">
-            <Button
-              variant="outline"
+          </div>          {/* Navigation Buttons */}
+          <div className="flex flex-wrap gap-3 mt-4 mb-3 justify-start items-center bg-opacity-50 rounded-lg py-2">            <Button
+              variant={darkMode ? "ghost" : "outline"}
               size="sm"
-              className="flex items-center gap-1"
+              className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
+                darkMode 
+                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-blue-600/20 hover:text-blue-400 hover:border-blue-700" 
+                  : "bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
+              }`}
             >
-              <Star className="w-4 h-4" />
+              <Star className={`w-4 h-4 ${darkMode ? "text-blue-400" : "text-blue-600"}`} />
               GitHub
             </Button>
             <Button
-              variant="outline"
+              variant={darkMode ? "ghost" : "outline"}
               size="sm"
-              className="flex items-center gap-1"
+              className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
+                darkMode 
+                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-purple-600/20 hover:text-purple-400 hover:border-purple-700" 
+                  : "bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
+              }`}
             >
-              <Calendar className="w-4 h-4" />
+              <Calendar className={`w-4 h-4 ${darkMode ? "text-purple-400" : "text-purple-600"}`} />
               Facebook
             </Button>
             <Button
-              variant="outline"
+              variant={darkMode ? "ghost" : "outline"}
               size="sm"
-              className="flex items-center gap-1"
-            >
-              <Phone className="w-4 h-4" />
+              className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
+                darkMode 
+                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-green-600/20 hover:text-green-400 hover:border-green-700" 
+                  : "bg-white text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-300"
+              }`}
+            >              <Phone className={`w-4 h-4 ${darkMode ? "text-green-400" : "text-green-600"}`} />
               Gmail
-            </Button>
-          </div>
+            </Button></div>
         </div>
       </div>
-
+      
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="container mx-auto px-4 py-10 space-y-8">
+          {/* Về tôi - Giới thiệu - Mục tiêu nghề nghiệp */}
+        <div className="space-y-6">
+          {/* Giới thiệu bản thân */}
+          <div className={`rounded-lg border ${
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          } p-6`}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className={`p-1.5 rounded-full ${darkMode ? "bg-blue-900/50" : "bg-blue-100"}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${darkMode ? "text-blue-400" : "text-blue-600"}`}>
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+              </div>
+              <h2 className={`font-medium ${darkMode ? "text-white" : "text-gray-900"}`}>
+                Giới Thiệu Bản Thân
+              </h2>
+            </div>
+            <p className={`text-sm mb-4 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+              Xin chào! Tôi là Trương Nguyễn Hoàng, một Full Stack Developer đầy 
+              đam mê với hơn 1 năm kinh nghiệm trong việc xây dựng các 
+              ứng dụng web hiện đại. Tôi rất hứng thú với các thay đổi thế giới
+              và luôn cố gắng tạo ra những sản phẩm có ý nghĩa.
+            </p>
+            <p className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+              Điều tôi yêu thích nhất trong lập trình là khả năng biến những ý 
+              tưởng thảo thành những sản phẩm thực tế có thể giúp ích 
+              cho mọi người. Tôi luôn học hỏi các công nghệ mới và không 
+              ngừng cải thiện kỹ năng của mình.
+            </p>
+          </div>
+
+          {/* Mục tiêu nghề nghiệp */}
+          <div className={`rounded-lg border ${
+            darkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          } p-6`}>
+            <div className="flex items-center gap-2 mb-4">
+              <div className={`p-1.5 rounded-full ${darkMode ? "bg-green-900/50" : "bg-green-100"}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${darkMode ? "text-green-400" : "text-green-600"}`}>
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+                </svg>
+              </div>
+              <h2 className={`font-medium ${darkMode ? "text-white" : "text-gray-900"}`}>
+                Mục Tiêu Nghề Nghiệp
+              </h2>
+            </div>
+            <p className={`text-sm mb-4 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
+              Trở thành một Senior Full Stack Developer trong 2 năm tới, đóng 
+              góp vào các dự án có tác động tích cực đến cộng đồng và xây 
+              dựng team phát triển mạnh mẽ.
+            </p>
+              {/* Thống kê cá nhân */}
+            <div className="mt-6">
+              <h3 className={`text-sm font-medium mb-4 ${darkMode ? "text-gray-200" : "text-gray-700"}`}>
+                Thống Kê Cá Nhân
+              </h3>              <div className="grid grid-cols-4 gap-4 text-center">
+                <div className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${darkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
+                  <AnimatedCounter 
+                    value={25} 
+                    suffix="+" 
+                    color={darkMode ? "text-blue-400" : "text-blue-600"}
+                  />
+                  <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Dự án</p>
+                </div>
+                <div className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${darkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
+                  <AnimatedCounter 
+                    value={3} 
+                    suffix="+" 
+                    color={darkMode ? "text-green-400" : "text-green-600"}
+                  />
+                  <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Công ty</p>
+                </div>
+                <div className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${darkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
+                  <AnimatedCounter 
+                    value={15} 
+                    suffix="+" 
+                    color={darkMode ? "text-purple-400" : "text-purple-600"}
+                  />
+                  <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Chứng chỉ</p>
+                </div>
+                <div className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${darkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
+                  <AnimatedCounter 
+                    value={8} 
+                    suffix="" 
+                    color={darkMode ? "text-orange-400" : "text-orange-600"}
+                  />
+                  <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Công nghệ</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        
+
         <div className="grid md:grid-cols-2 gap-6">
           {/* Academic Grades Chart */}
           <div
