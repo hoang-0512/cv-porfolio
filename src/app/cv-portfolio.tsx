@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import SplashCursor from '@/components/SplashCursor';
 import Image from "next/image";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bar,
   BarChart,
@@ -165,6 +165,17 @@ const carouselStyles = `
   .stat-card:hover::before {
     transform: translateX(100%);
   }
+  
+  /* Animation for fade-in and slide-up */
+  .fade-in-up {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
+  }
+  .fade-in-up.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
 `;
 
 export default function Component() {
@@ -236,6 +247,34 @@ export default function Component() {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [scrolled]);
+
+  // Animation for scroll into view
+  const gradeRef = useRef<HTMLDivElement>(null);
+  const skillRef = useRef<HTMLDivElement>(null);
+  const [gradeVisible, setGradeVisible] = useState(false);
+  const [skillVisible, setSkillVisible] = useState(false);
+
+  useEffect(() => {
+    const handleObserver = (
+      ref: React.RefObject<HTMLDivElement | null>,
+      setVisible: React.Dispatch<React.SetStateAction<boolean>>
+    ) => {
+      if (!ref.current) return;
+      const observer = new window.IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setVisible(true);
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.2 }
+      );
+      observer.observe(ref.current);
+    };
+    handleObserver(gradeRef, setGradeVisible);
+    handleObserver(skillRef, setSkillVisible);
+  }, []);
+
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
@@ -244,7 +283,7 @@ export default function Component() {
           : "bg-gradient-to-br from-blue-50 to-indigo-100"
       }`}
     >      {/* Fluid cursor effect */}
-      <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 100 }}>        <SplashCursor 
+      {/* <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 100 }}>        <SplashCursor 
           SPLAT_RADIUS={0.06}
           CURL={0.6}
           DENSITY_DISSIPATION={9.5}
@@ -253,7 +292,7 @@ export default function Component() {
           SPLAT_FORCE={1500}
           TRANSPARENT={true}
         />
-      </div>
+      </div> */}
       
       {/* Inject CSS styles */}
       <style>{carouselStyles}</style>      {/* Header */}      <div
@@ -335,7 +374,8 @@ export default function Component() {
             </Button>
 
           </div>          {/* Navigation Buttons */}
-          <div className="flex flex-wrap gap-3 mt-4 mb-3 justify-start items-center bg-opacity-50 rounded-lg py-2">            <Button
+          <div className="flex flex-wrap gap-3 mt-4 mb-3 justify-start items-center bg-opacity-50 rounded-lg py-2">
+            <Button
               variant={darkMode ? "ghost" : "outline"}
               size="sm"
               className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
@@ -343,9 +383,15 @@ export default function Component() {
                   ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-blue-600/20 hover:text-blue-400 hover:border-blue-700" 
                   : "bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
               }`}
+              asChild
             >
-              <Star className={`w-4 h-4 ${darkMode ? "text-blue-400" : "text-blue-600"}`} />
-              GitHub
+              <a href="https://github.com/hoang-0512" target="_blank" rel="noopener noreferrer">
+                {/* GitHub icon */}
+                <svg className={`w-4 h-4 ${darkMode ? "text-blue-400" : "text-blue-600"}`} fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.157-1.11-1.465-1.11-1.465-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.091-.647.35-1.088.636-1.339-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.847-2.337 4.695-4.566 4.944.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .267.18.577.688.48C19.138 20.2 22 16.447 22 12.021 22 6.484 17.523 2 12 2z"/>
+                </svg>
+                GitHub
+              </a>
             </Button>
             <Button
               variant={darkMode ? "ghost" : "outline"}
@@ -355,9 +401,15 @@ export default function Component() {
                   ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-purple-600/20 hover:text-purple-400 hover:border-purple-700" 
                   : "bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
               }`}
+              asChild
             >
-              <Calendar className={`w-4 h-4 ${darkMode ? "text-purple-400" : "text-purple-600"}`} />
-              Facebook
+              <a href="https://www.facebook.com/quanghuy.vu.1044186?locale=vi_VN" target="_blank" rel="noopener noreferrer">
+                {/* Facebook icon */}
+                <svg className={`w-4 h-4 ${darkMode ? "text-purple-400" : "text-purple-600"}`} fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.408.595 24 1.325 24h11.495v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.408 24 22.674V1.326C24 .592 23.406 0 22.675 0"/>
+                </svg>
+                Facebook
+              </a>
             </Button>
             <Button
               variant={darkMode ? "ghost" : "outline"}
@@ -367,9 +419,15 @@ export default function Component() {
                   ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-green-600/20 hover:text-green-400 hover:border-green-700" 
                   : "bg-white text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-300"
               }`}
-            >              <Phone className={`w-4 h-4 ${darkMode ? "text-green-400" : "text-green-600"}`} />
-              Gmail
-            </Button></div>
+              asChild
+            >
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=truongnguyenhoang0512@gmail.com" target="_blank" rel="noopener noreferrer">
+                {/* Mail icon */}
+                <Mail className={`w-4 h-4 ${darkMode ? "text-green-400" : "text-green-600"}`} />
+                Gmail
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
       
@@ -471,16 +529,15 @@ export default function Component() {
           </div>
         </div>
 
-        
-
         <div className="grid md:grid-cols-2 gap-6">
           {/* Academic Grades Chart */}
           <div
+            ref={gradeRef}
             className={`rounded-lg border ${
               darkMode
                 ? "bg-gray-800 border-gray-700"
                 : "bg-white border-gray-200"
-            } p-6 transition-colors duration-300`}
+            } p-6 transition-colors duration-300 fade-in-up${gradeVisible ? ' visible' : ''}`}
           >
             <div className="flex items-center gap-2 mb-1">
               <Star
@@ -575,11 +632,12 @@ export default function Component() {
 
           {/* Skills */}
           <div
+            ref={skillRef}
             className={`rounded-lg border ${
               darkMode
                 ? "bg-gray-800 border-gray-700"
                 : "bg-white border-gray-200"
-            } p-6 transition-colors duration-300`}
+            } p-6 transition-colors duration-300 fade-in-up${skillVisible ? ' visible' : ''}`}
           >
             <h2
               className={`font-medium mb-1 ${
@@ -934,7 +992,7 @@ export default function Component() {
               <div className="relative pl-6 pb-6 border-l-2 border-blue-100">
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-500 border-[3px] border-white" />
                 <h4 className="font-medium text-gray-900">
-                  Cử Nhân Công Nghệ Thông Tin
+                  
                 </h4>
                 <p className="text-sm text-blue-600 mt-0.5">
                   Đại học Bách Khoa TP.HCM
@@ -950,9 +1008,9 @@ export default function Component() {
               <div className="relative pl-6 border-l-2 border-green-100">
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-green-500 border-[3px] border-white" />
                 <h4 className="font-medium text-gray-900">Tốt nghiệp THPT</h4>
-                <p className="text-sm text-green-600 mt-0.5">THPT Lê Quý Đôn</p>
+                <p className="text-sm text-green-600 mt-0.5">THPT B Phủ Lý</p>
                 <p className="text-sm text-gray-500 mt-0.5">
-                  2017 - 2020 | Điểm TB: 8.5/10
+                  2019-2022
                 </p>
                 <p className="text-sm text-gray-600 mt-1">
                   Khối A - Toán, Lý, Hóa
