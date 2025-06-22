@@ -30,6 +30,9 @@ import {
   certificates,
   projects,
 } from "@/data/constants";
+import CardSwap, { Card } from '@/components/ui/CardSwap';
+import '@/components/ui/CardSwap.css';
+import Lanyard from '@/components/Lanyard';
 
 // Animated Counter Component
 const AnimatedCounter = ({ value, suffix = "", color }: { value: string | number, suffix?: string, color: string }) => {
@@ -216,16 +219,8 @@ export default function Component() {
     return () => clearInterval(timer);
   }, []);
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-    if (!darkMode) {
-      document.documentElement.classList.add("dark");
-      localStorage.theme = "dark";
-    } else {
-      document.documentElement.classList.remove("dark");
-      localStorage.theme = "light";
-    }
-  };
+  // Hàm chuyển đổi dark mode
+  const toggleDarkMode = () => setDarkMode((prev) => !prev);
 
   const visibleCertificates = certificates.slice(
     activeIndex,
@@ -294,8 +289,9 @@ export default function Component() {
         />
       </div> */}
       
-      {/* Inject CSS styles */}
-      <style>{carouselStyles}</style>      {/* Header */}      <div
+      
+      
+      {/* Header */}       <div
         className={`relative w-full mb-8 ${scrolled ? 'py-4' : 'py-6'} ${
           darkMode
             ? "bg-gray-800 border-gray-700"
@@ -360,19 +356,10 @@ export default function Component() {
                 </div>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={toggleDarkMode}
-              className={`h-8 ${darkMode ? "text-white border-gray-700" : ""}`}
-            >
-              {darkMode ? (
-                <Sun className="h-4 w-4" />
-              ) : (
-                <Moon className="h-4 w-4" />
-              )}
-            </Button>
-
+            {/* Thay nút sáng/tối bằng Lanyard */}
+             <div style={{ width: 80, height: 80, minWidth: 60, minHeight: 60, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} toggleDarkMode={toggleDarkMode} />
+            </div>
           </div>          {/* Navigation Buttons */}
           <div className="flex flex-wrap gap-3 mt-4 mb-3 justify-start items-center bg-opacity-50 rounded-lg py-2">
             <Button
@@ -698,128 +685,39 @@ export default function Component() {
             darkMode
               ? "bg-gray-800 border-gray-700"
               : "bg-white border-gray-200"
-          } p-6 overflow-hidden`}
+          } p-6 overflow-hidden relative min-h-[420px] flex flex-col justify-center`}
         >
-          <div className="flex items-center gap-2 mb-1">
-            <Award
-              className={`w-4 h-4 ${
-                darkMode ? "text-green-400" : "text-green-600"
-              }`}
-            />
+          <div className="w-full flex flex-col items-start justify-center h-full">
             <h2
-              className={`font-medium ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
+              className="font-bold text-4xl md:text-5xl text-left w-full mb-2 tracking-tight"
+              style={{ color: darkMode ? '#fff' : '#18181b' }}
             >
               Chứng Chỉ & Giải Thưởng
             </h2>
+            <p className="text-lg text-left w-full text-gray-400 mb-8">
+              Các chứng chỉ chuyên môn đã đạt được
+            </p>
           </div>
-          <p
-            className={`text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-500"
-            } mb-6`}
-          >
-            Các chứng chỉ chuyên môn đã đạt được
-          </p>
 
-          {/* Certificate Carousel */}
-          <div className="relative overflow-hidden">
-            <div className="certificate-carousel flex">
-              {visibleCertificates.map((cert, index) => (
-                <div
-                  key={`${activeIndex}-${index}`}
-                  className={`certificate-item p-4 ${
-                    darkMode ? "bg-gray-700" : "bg-white"
-                  } border ${
-                    darkMode
-                      ? "border-gray-600 hover:border-gray-500"
-                      : "border-gray-200 hover:border-gray-400"
-                  } rounded-lg transition-colors duration-300 flex flex-col ${
-                    isTransitioning
-                      ? index === 0
-                        ? "certificate-item-entering"
-                        : "certificate-item-exiting"
-                      : ""
-                  }`}
-                >
-                  <div className="flex items-center justify-center mb-4 h-16">
-                    <div className="relative w-[50px] h-[50px] flex-shrink-0">
-                      <Image
-                        src={cert.image}
-                        alt={cert.name}
-                        fill
-                        className="object-contain"
-                      />
+          {/* CardSwap Animation */}
+          <div style={{ height: '400px', position: 'relative' }}>
+            <CardSwap cardDistance={60} verticalDistance={70} delay={5000} pauseOnHover={false}>
+              {certificates.slice(0, 5).map((cert, idx) => (
+                <Card key={idx} customClass={darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-200 text-gray-900'}>
+                  <div className="flex flex-col items-center justify-center h-full p-6">
+                    <div className="mb-4">
+                      <img src={cert.image} alt={cert.name} className="w-16 h-16 object-contain rounded-full border mb-2" />
+                    </div>
+                    <h4 className="font-semibold text-base text-center mb-2 line-clamp-2 h-10">{cert.name}</h4>
+                    <p className="text-xs text-center mb-1 truncate">{cert.issuer}</p>
+                    <div className="flex items-center justify-center gap-1">
+                      <Calendar className="w-3 h-3 text-gray-400" />
+                      <span className="text-xs text-gray-400">{cert.date}</span>
                     </div>
                   </div>
-                  <div className="flex-1 flex flex-col">
-                    <h4
-                      className={`font-medium text-sm text-center mb-2 line-clamp-2 h-10 ${
-                        darkMode
-                          ? "text-gray-100 group-hover:text-blue-400"
-                          : "text-gray-800 group-hover:text-blue-600"
-                      }`}
-                    >
-                      {cert.name}
-                    </h4>
-                    <div className="mt-auto">
-                      <p
-                        className={`text-xs text-center mb-1 truncate ${
-                          darkMode ? "text-gray-400" : "text-gray-500"
-                        }`}
-                      >
-                        {cert.issuer}
-                      </p>
-                      <div className="flex items-center justify-center gap-1">
-                        <Calendar
-                          className={`w-3 h-3 ${
-                            darkMode ? "text-gray-500" : "text-gray-400"
-                          }`}
-                        />
-                        <p
-                          className={`text-xs ${
-                            darkMode ? "text-gray-500" : "text-gray-400"
-                          }`}
-                        >
-                          {cert.date}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                </Card>
               ))}
-            </div>
-
-            {/* Progress Indicators */}
-            <div className="flex justify-center mt-4 gap-2">
-              {Array.from(
-                {
-                  length: Math.ceil(certificates.length / certificatesPerPage),
-                },
-                (_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => {
-                      setIsTransitioning(true);
-                      setTimeout(() => {
-                        setActiveIndex(i * certificatesPerPage);
-                        setIsTransitioning(false);
-                      }, 500);
-                    }}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      Math.floor(activeIndex / certificatesPerPage) === i
-                        ? darkMode
-                          ? "bg-green-400"
-                          : "bg-green-600"
-                        : darkMode
-                        ? "bg-gray-600"
-                        : "bg-gray-300"
-                    }`}
-                    aria-label={`Go to slide ${i + 1}`}
-                  />
-                )
-              )}
-            </div>
+            </CardSwap>
           </div>
         </div>
 
