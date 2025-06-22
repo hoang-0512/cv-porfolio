@@ -21,7 +21,7 @@ export const certificates = [
     name: "Amazon Junior Software Developer ",
     issuer: "Amazon",
     date: "2024",
-    image: "/placeholder.svg?height=60&width=60",
+    image: "aa",
   },
   {
     name: "Software Development Lifecycle",
@@ -58,7 +58,8 @@ export const certificates = [
     issuer: "Meta",
     date: "2024",
     image: "/placeholder.svg?height=60&width=60",
-  },
+  }
+  
 ];
 
 export const projects = [

@@ -11,7 +11,7 @@ import {
   Star,
   Sun,
 } from "lucide-react";
-import SplashCursor from '@/components/SplashCursor';
+import SplashCursor from "@/components/SplashCursor";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -30,15 +30,23 @@ import {
   certificates,
   projects,
 } from "@/data/constants";
-import CardSwap, { Card } from '@/components/ui/CardSwap';
-import '@/components/ui/CardSwap.css';
-import Lanyard from '@/components/Lanyard';
+import CardSwap, { Card } from "@/components/ui/CardSwap";
+import "@/components/ui/CardSwap.css";
+import Lanyard from "@/components/Lanyard";
 
 // Animated Counter Component
-const AnimatedCounter = ({ value, suffix = "", color }: { value: string | number, suffix?: string, color: string }) => {
+const AnimatedCounter = ({
+  value,
+  suffix = "",
+  color,
+}: {
+  value: string | number;
+  suffix?: string;
+  color: string;
+}) => {
   const [displayValue, setDisplayValue] = useState(0);
   const counterRef = useRef(null);
-  
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -48,7 +56,7 @@ const AnimatedCounter = ({ value, suffix = "", color }: { value: string | number
           const endValue = parseInt(value.toString());
           const duration = 2000;
           const increment = Math.ceil(endValue / (duration / 30));
-          
+
           const timer = setInterval(() => {
             startValue += increment;
             if (startValue > endValue) {
@@ -58,27 +66,31 @@ const AnimatedCounter = ({ value, suffix = "", color }: { value: string | number
               setDisplayValue(startValue);
             }
           }, 30);
-          
+
           return () => clearInterval(timer);
         }
       },
       { threshold: 0.1 }
     );
-    
+
     if (counterRef.current) {
       observer.observe(counterRef.current);
     }
-    
+
     return () => {
       if (counterRef.current) {
         observer.unobserve(counterRef.current);
       }
     };
   }, [value]);
-  
+
   return (
-    <p ref={counterRef} className={`stat-number text-xl font-semibold animate-pulse-slow ${color}`}>
-      {displayValue}{suffix}
+    <p
+      ref={counterRef}
+      className={`stat-number text-xl font-semibold animate-pulse-slow ${color}`}
+    >
+      {displayValue}
+      {suffix}
     </p>
   );
 };
@@ -227,7 +239,7 @@ export default function Component() {
     activeIndex + certificatesPerPage
   );
   const [scrolled, setScrolled] = useState(false);
-  
+
   // Add scroll event listener
   useEffect(() => {
     const handleScroll = () => {
@@ -236,10 +248,10 @@ export default function Component() {
         setScrolled(isScrolled);
       }
     };
-    
-    window.addEventListener('scroll', handleScroll);
+
+    window.addEventListener("scroll", handleScroll);
     return () => {
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, [scrolled]);
 
@@ -277,7 +289,9 @@ export default function Component() {
           ? "bg-gray-900"
           : "bg-gradient-to-br from-blue-50 to-indigo-100"
       }`}
-    >      {/* Fluid cursor effect */}
+    >
+      {" "}
+      {/* Fluid cursor effect */}
       {/* <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 100 }}>        <SplashCursor 
           SPLAT_RADIUS={0.06}
           CURL={0.6}
@@ -288,14 +302,10 @@ export default function Component() {
           TRANSPARENT={true}
         />
       </div> */}
-      
-      
-      
-      {/* Header */}       <div
-        className={`relative w-full mb-8 ${scrolled ? 'py-4' : 'py-6'} ${
-          darkMode
-            ? "bg-gray-800 border-gray-700"
-            : "bg-white border-gray-200"
+      {/* Header */}{" "}
+      <div
+        className={`relative w-full mb-8 ${scrolled ? "py-4" : "py-6"} ${
+          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
         } border-b transition-all duration-300 shadow-sm`}
       >
         <div className="container mx-auto px-4">
@@ -304,14 +314,14 @@ export default function Component() {
               <div className="relative animate-float mt-1">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-lg opacity-30"></div>
                 <Image
-                src="/src/public/Screenshot 2025-06-20 234519.png"
-                alt="Profile"
-                width={140}
-                height={140}
-                className="relative rounded-full border-4 border-white shadow-xl"
+                  src="/src/public/Screenshot 2025-06-20 234519.png"
+                  alt="Profile"
+                  width={140}
+                  height={140}
+                  className="relative rounded-full border-4 border-white shadow-xl"
                 />
-              <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
-            </div>
+                <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
+              </div>
               <div className="flex-1">
                 <h1
                   className={`text-xl font-semibold mb-1 ${
@@ -357,25 +367,50 @@ export default function Component() {
               </div>
             </div>
             {/* Thay nút sáng/tối bằng Lanyard */}
-             <div style={{ width: 80, height: 80, minWidth: 60, minHeight: 60, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-              <Lanyard position={[0, 0, 20]} gravity={[0, -40, 0]} toggleDarkMode={toggleDarkMode} />
+            <div
+              style={{
+                width: 80,
+                height: 80,
+                minWidth: 60,
+                minHeight: 60,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Lanyard
+                position={[0, 0, 20]}
+                gravity={[0, -40, 0]}
+                toggleDarkMode={toggleDarkMode}
+              />
             </div>
-          </div>          {/* Navigation Buttons */}
+          </div>{" "}
+          {/* Navigation Buttons */}
           <div className="flex flex-wrap gap-3 mt-4 mb-3 justify-start items-center bg-opacity-50 rounded-lg py-2">
             <Button
               variant={darkMode ? "ghost" : "outline"}
               size="sm"
               className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
-                darkMode 
-                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-blue-600/20 hover:text-blue-400 hover:border-blue-700" 
+                darkMode
+                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-blue-600/20 hover:text-blue-400 hover:border-blue-700"
                   : "bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
               }`}
               asChild
             >
-              <a href="https://github.com/hoang-0512" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://github.com/hoang-0512"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {/* GitHub icon */}
-                <svg className={`w-4 h-4 ${darkMode ? "text-blue-400" : "text-blue-600"}`} fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.157-1.11-1.465-1.11-1.465-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.091-.647.35-1.088.636-1.339-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.847-2.337 4.695-4.566 4.944.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .267.18.577.688.48C19.138 20.2 22 16.447 22 12.021 22 6.484 17.523 2 12 2z"/>
+                <svg
+                  className={`w-4 h-4 ${
+                    darkMode ? "text-blue-400" : "text-blue-600"
+                  }`}
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.157-1.11-1.465-1.11-1.465-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.091-.647.35-1.088.636-1.339-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.847-2.337 4.695-4.566 4.944.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .267.18.577.688.48C19.138 20.2 22 16.447 22 12.021 22 6.484 17.523 2 12 2z" />
                 </svg>
                 GitHub
               </a>
@@ -384,16 +419,26 @@ export default function Component() {
               variant={darkMode ? "ghost" : "outline"}
               size="sm"
               className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
-                darkMode 
-                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-purple-600/20 hover:text-purple-400 hover:border-purple-700" 
+                darkMode
+                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-purple-600/20 hover:text-purple-400 hover:border-purple-700"
                   : "bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
               }`}
               asChild
             >
-              <a href="https://www.facebook.com/quanghuy.vu.1044186?locale=vi_VN" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://www.facebook.com/quanghuy.vu.1044186?locale=vi_VN"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {/* Facebook icon */}
-                <svg className={`w-4 h-4 ${darkMode ? "text-purple-400" : "text-purple-600"}`} fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.408.595 24 1.325 24h11.495v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.408 24 22.674V1.326C24 .592 23.406 0 22.675 0"/>
+                <svg
+                  className={`w-4 h-4 ${
+                    darkMode ? "text-purple-400" : "text-purple-600"
+                  }`}
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.408.595 24 1.325 24h11.495v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.408 24 22.674V1.326C24 .592 23.406 0 22.675 0" />
                 </svg>
                 Facebook
               </a>
@@ -402,114 +447,230 @@ export default function Component() {
               variant={darkMode ? "ghost" : "outline"}
               size="sm"
               className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
-                darkMode 
-                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-green-600/20 hover:text-green-400 hover:border-green-700" 
+                darkMode
+                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-green-600/20 hover:text-green-400 hover:border-green-700"
                   : "bg-white text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-300"
               }`}
               asChild
             >
-              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=truongnguyenhoang0512@gmail.com" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=truongnguyenhoang0512@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {/* Mail icon */}
-                <Mail className={`w-4 h-4 ${darkMode ? "text-green-400" : "text-green-600"}`} />
+                <Mail
+                  className={`w-4 h-4 ${
+                    darkMode ? "text-green-400" : "text-green-600"
+                  }`}
+                />
                 Gmail
               </a>
             </Button>
           </div>
         </div>
       </div>
-      
       {/* Main Content */}
       <div className="container mx-auto px-4 py-10 space-y-8">
-          {/* Về tôi - Giới thiệu - Mục tiêu nghề nghiệp */}
+        {/* Về tôi - Giới thiệu - Mục tiêu nghề nghiệp */}
         <div className="space-y-6">
           {/* Giới thiệu bản thân */}
-          <div className={`rounded-lg border ${
-            darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          } p-6`}>
+          <div
+            className={`rounded-lg border ${
+              darkMode
+                ? "bg-gray-800 border-gray-700"
+                : "bg-white border-gray-200"
+            } p-6`}
+          >
             <div className="flex items-center gap-2 mb-4">
-              <div className={`p-1.5 rounded-full ${darkMode ? "bg-blue-900/50" : "bg-blue-100"}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${darkMode ? "text-blue-400" : "text-blue-600"}`}>
+              <div
+                className={`p-1.5 rounded-full ${
+                  darkMode ? "bg-blue-900/50" : "bg-blue-100"
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={`${darkMode ? "text-blue-400" : "text-blue-600"}`}
+                >
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
               </div>
-              <h2 className={`font-medium ${darkMode ? "text-white" : "text-gray-900"}`}>
+              <h2
+                className={`font-medium ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
                 Giới Thiệu Bản Thân
               </h2>
             </div>
-            <p className={`text-sm mb-4 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-              Xin chào! Tôi là Trương Nguyễn Hoàng, một Full Stack Developer đầy 
-              đam mê với hơn 1 năm kinh nghiệm trong việc xây dựng các 
-              ứng dụng web hiện đại. Tôi rất hứng thú với các thay đổi thế giới
-              và luôn cố gắng tạo ra những sản phẩm có ý nghĩa.
+            <p
+              className={`text-sm mb-4 ${
+                darkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Xin chào! Tôi là Trương Nguyễn Hoàng, một Full Stack Developer đầy
+              đam mê với hơn 1 năm kinh nghiệm trong việc xây dựng các ứng dụng
+              web hiện đại. Tôi rất hứng thú với các thay đổi thế giới và luôn
+              cố gắng tạo ra những sản phẩm có ý nghĩa.
             </p>
-            <p className={`text-sm ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-              Điều tôi yêu thích nhất trong lập trình là khả năng biến những ý 
-              tưởng thảo thành những sản phẩm thực tế có thể giúp ích 
-              cho mọi người. Tôi luôn học hỏi các công nghệ mới và không 
-              ngừng cải thiện kỹ năng của mình.
+            <p
+              className={`text-sm ${
+                darkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Điều tôi yêu thích nhất trong lập trình là khả năng biến những ý
+              tưởng thảo thành những sản phẩm thực tế có thể giúp ích cho mọi
+              người. Tôi luôn học hỏi các công nghệ mới và không ngừng cải thiện
+              kỹ năng của mình.
             </p>
           </div>
 
           {/* Mục tiêu nghề nghiệp */}
-          <div className={`rounded-lg border ${
-            darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          } p-6`}>
+          <div
+            className={`rounded-lg border ${
+              darkMode
+                ? "bg-gray-800 border-gray-700"
+                : "bg-white border-gray-200"
+            } p-6`}
+          >
             <div className="flex items-center gap-2 mb-4">
-              <div className={`p-1.5 rounded-full ${darkMode ? "bg-green-900/50" : "bg-green-100"}`}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`${darkMode ? "text-green-400" : "text-green-600"}`}>
-                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+              <div
+                className={`p-1.5 rounded-full ${
+                  darkMode ? "bg-green-900/50" : "bg-green-100"
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={`${
+                    darkMode ? "text-green-400" : "text-green-600"
+                  }`}
+                >
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
                 </svg>
               </div>
-              <h2 className={`font-medium ${darkMode ? "text-white" : "text-gray-900"}`}>
+              <h2
+                className={`font-medium ${
+                  darkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
                 Mục Tiêu Nghề Nghiệp
               </h2>
             </div>
-            <p className={`text-sm mb-4 ${darkMode ? "text-gray-300" : "text-gray-700"}`}>
-              Trở thành một Senior Full Stack Developer trong 2 năm tới, đóng 
-              góp vào các dự án có tác động tích cực đến cộng đồng và xây 
-              dựng team phát triển mạnh mẽ.
+            <p
+              className={`text-sm mb-4 ${
+                darkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              Trở thành một Senior Full Stack Developer trong 2 năm tới, đóng
+              góp vào các dự án có tác động tích cực đến cộng đồng và xây dựng
+              team phát triển mạnh mẽ.
             </p>
-              {/* Thống kê cá nhân */}
+            {/* Thống kê cá nhân */}
             <div className="mt-6">
-              <h3 className={`text-sm font-medium mb-4 ${darkMode ? "text-gray-200" : "text-gray-700"}`}>
+              <h3
+                className={`text-sm font-medium mb-4 ${
+                  darkMode ? "text-gray-200" : "text-gray-700"
+                }`}
+              >
                 Thống Kê Cá Nhân
-              </h3>              <div className="grid grid-cols-4 gap-4 text-center">
-                <div className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${darkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
-                  <AnimatedCounter 
-                    value={25} 
-                    suffix="+" 
+              </h3>{" "}
+              <div className="grid grid-cols-4 gap-4 text-center">
+                <div
+                  className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${
+                    darkMode
+                      ? "bg-gray-700/50 hover:bg-gray-700"
+                      : "bg-gray-50 hover:bg-gray-100"
+                  }`}
+                >
+                  <AnimatedCounter
+                    value={25}
+                    suffix="+"
                     color={darkMode ? "text-blue-400" : "text-blue-600"}
                   />
-                  <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Dự án</p>
+                  <p
+                    className={`text-xs mt-1 ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Dự án
+                  </p>
                 </div>
-                <div className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${darkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
-                  <AnimatedCounter 
-                    value={3} 
-                    suffix="+" 
+                <div
+                  className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${
+                    darkMode
+                      ? "bg-gray-700/50 hover:bg-gray-700"
+                      : "bg-gray-50 hover:bg-gray-100"
+                  }`}
+                >
+                  <AnimatedCounter
+                    value={3}
+                    suffix="+"
                     color={darkMode ? "text-green-400" : "text-green-600"}
                   />
-                  <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Công ty</p>
+                  <p
+                    className={`text-xs mt-1 ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Công ty
+                  </p>
                 </div>
-                <div className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${darkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
-                  <AnimatedCounter 
-                    value={15} 
-                    suffix="+" 
+                <div
+                  className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${
+                    darkMode
+                      ? "bg-gray-700/50 hover:bg-gray-700"
+                      : "bg-gray-50 hover:bg-gray-100"
+                  }`}
+                >
+                  <AnimatedCounter
+                    value={15}
+                    suffix="+"
                     color={darkMode ? "text-purple-400" : "text-purple-600"}
                   />
-                  <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Chứng chỉ</p>
+                  <p
+                    className={`text-xs mt-1 ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Chứng chỉ
+                  </p>
                 </div>
-                <div className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${darkMode ? "bg-gray-700/50 hover:bg-gray-700" : "bg-gray-50 hover:bg-gray-100"}`}>
-                  <AnimatedCounter 
-                    value={8} 
-                    suffix="" 
+                <div
+                  className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${
+                    darkMode
+                      ? "bg-gray-700/50 hover:bg-gray-700"
+                      : "bg-gray-50 hover:bg-gray-100"
+                  }`}
+                >
+                  <AnimatedCounter
+                    value={8}
+                    suffix=""
                     color={darkMode ? "text-orange-400" : "text-orange-600"}
                   />
-                  <p className={`text-xs mt-1 ${darkMode ? "text-gray-400" : "text-gray-500"}`}>Công nghệ</p>
+                  <p
+                    className={`text-xs mt-1 ${
+                      darkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    Công nghệ
+                  </p>
                 </div>
               </div>
             </div>
@@ -524,7 +685,9 @@ export default function Component() {
               darkMode
                 ? "bg-gray-800 border-gray-700"
                 : "bg-white border-gray-200"
-            } p-6 transition-colors duration-300 fade-in-up${gradeVisible ? ' visible' : ''}`}
+            } p-6 transition-colors duration-300 fade-in-up${
+              gradeVisible ? " visible" : ""
+            }`}
           >
             <div className="flex items-center gap-2 mb-1">
               <Star
@@ -624,7 +787,9 @@ export default function Component() {
               darkMode
                 ? "bg-gray-800 border-gray-700"
                 : "bg-white border-gray-200"
-            } p-6 transition-colors duration-300 fade-in-up${skillVisible ? ' visible' : ''}`}
+            } p-6 transition-colors duration-300 fade-in-up${
+              skillVisible ? " visible" : ""
+            }`}
           >
             <h2
               className={`font-medium mb-1 ${
@@ -642,7 +807,15 @@ export default function Component() {
             </p>
             <div className="space-y-5">
               {skillsData.map((skill, index) => (
-                <div key={index} className="group">
+                <div
+                  key={index}
+                  className={`group transition-transform duration-500 ease-out ${
+                    skillVisible
+                      ? "translate-x-0 opacity-100"
+                      : "translate-x-10 opacity-0"
+                  }`}
+                  style={{ transitionDelay: `${index * 80}ms` }}
+                >
                   <div className="flex justify-between text-sm mb-2">
                     <span
                       className={`font-medium ${
@@ -665,12 +838,12 @@ export default function Component() {
                     } rounded-full overflow-hidden transition-colors duration-300`}
                   >
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ease-out ${
+                      className={`h-full rounded-full transition-all duration-700 ease-out ${
                         darkMode ? "bg-emerald-500" : "bg-emerald-600"
                       } group-hover:${
                         darkMode ? "bg-emerald-400" : "bg-emerald-500"
                       }`}
-                      style={{ width: `${skill.level}%` }}
+                      style={{ width: skillVisible ? `${skill.level}%` : "0%" }}
                     />
                   </div>
                 </div>
@@ -690,7 +863,7 @@ export default function Component() {
           <div className="w-full flex flex-col items-start justify-center h-full">
             <h2
               className="font-bold text-4xl md:text-5xl text-left w-full mb-2 tracking-tight"
-              style={{ color: darkMode ? '#fff' : '#18181b' }}
+              style={{ color: darkMode ? "#fff" : "#18181b" }}
             >
               Chứng Chỉ & Giải Thưởng
             </h2>
@@ -700,16 +873,36 @@ export default function Component() {
           </div>
 
           {/* CardSwap Animation */}
-          <div style={{ height: '400px', position: 'relative' }}>
-            <CardSwap cardDistance={60} verticalDistance={70} delay={5000} pauseOnHover={false}>
+          <div style={{ height: "400px", position: "relative" }}>
+            <CardSwap
+              cardDistance={60}
+              verticalDistance={70}
+              delay={5000}
+              pauseOnHover={false}
+            >
               {certificates.slice(0, 5).map((cert, idx) => (
-                <Card key={idx} customClass={darkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-200 text-gray-900'}>
+                <Card
+                  key={idx}
+                  customClass={
+                    darkMode
+                      ? "bg-gray-700 border-gray-600 text-white"
+                      : "bg-white border-gray-200 text-gray-900"
+                  }
+                >
                   <div className="flex flex-col items-center justify-center h-full p-6">
                     <div className="mb-4">
-                      <img src={cert.image} alt={cert.name} className="w-16 h-16 object-contain rounded-full border mb-2" />
+                      <img
+                        src={cert.image}
+                        alt={cert.name}
+                        className="w-16 h-16 object-contain rounded-full border mb-2"
+                      />
                     </div>
-                    <h4 className="font-semibold text-base text-center mb-2 line-clamp-2 h-10">{cert.name}</h4>
-                    <p className="text-xs text-center mb-1 truncate">{cert.issuer}</p>
+                    <h4 className="font-semibold text-base text-center mb-2 line-clamp-2 h-10">
+                      {cert.name}
+                    </h4>
+                    <p className="text-xs text-center mb-1 truncate">
+                      {cert.issuer}
+                    </p>
                     <div className="flex items-center justify-center gap-1">
                       <Calendar className="w-3 h-3 text-gray-400" />
                       <span className="text-xs text-gray-400">{cert.date}</span>
@@ -889,9 +1082,7 @@ export default function Component() {
             <div className="space-y-6">
               <div className="relative pl-6 pb-6 border-l-2 border-blue-100">
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-500 border-[3px] border-white" />
-                <h4 className="font-medium text-gray-900">
-                  
-                </h4>
+                <h4 className="font-medium text-gray-900"></h4>
                 <p className="text-sm text-blue-600 mt-0.5">
                   Đại học Bách Khoa TP.HCM
                 </p>
@@ -907,9 +1098,7 @@ export default function Component() {
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-green-500 border-[3px] border-white" />
                 <h4 className="font-medium text-gray-900">Tốt nghiệp THPT</h4>
                 <p className="text-sm text-green-600 mt-0.5">THPT B Phủ Lý</p>
-                <p className="text-sm text-gray-500 mt-0.5">
-                  2019-2022
-                </p>
+                <p className="text-sm text-gray-500 mt-0.5">2019-2022</p>
                 <p className="text-sm text-gray-600 mt-1">
                   Khối A - Toán, Lý, Hóa
                 </p>
@@ -953,7 +1142,6 @@ export default function Component() {
           </div>
         </div>
       </div>
-
       {/* Footer */}
       <footer className="bg-white border-t mt-12">
         <div className="max-w-6xl mx-auto px-4 py-6 text-center">
