@@ -166,13 +166,14 @@ function Band({ maxSpeed = 50, minSpeed = 0, toggleDarkMode }: BandProps) {
         </RigidBody>
       </group>
       <mesh ref={band}>
-        <meshLineGeometry {...(undefined as any)} />
+        {/* @ts-ignore */}
+        <meshLineGeometry />
+        {/* @ts-ignore */}
         <meshLineMaterial
           color="white"
           depthTest={false}
           resolution={isSmall ? [1000, 2000] : [1000, 1000]}
           lineWidth={1}
-          {...(undefined as any)}
         />
       </mesh>
     </>

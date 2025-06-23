@@ -314,7 +314,7 @@ export default function Component() {
               <div className="relative animate-float mt-1">
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-lg opacity-30"></div>
                 <Image
-                  src="/src/public/Screenshot 2025-06-20 234519.png"
+                  src="/cannhan1.png"
                   alt="Profile"
                   width={140}
                   height={140}
@@ -890,11 +890,12 @@ export default function Component() {
                   }
                 >
                   <div className="flex flex-col items-center justify-center h-full p-6">
-                    <div className="mb-4">
+                    <div className="mb-4 flex justify-center items-center w-full">
                       <img
                         src={cert.image}
                         alt={cert.name}
-                        className="w-16 h-16 object-contain rounded-full border mb-2"
+                        className="w-90 h-100 object-contain rounded-2xl border mb-2 shadow-lg bg-white"
+                        style={{ maxWidth: '100%', maxHeight: '180px' }}
                       />
                     </div>
                     <h4 className="font-semibold text-base text-center mb-2 line-clamp-2 h-10">
