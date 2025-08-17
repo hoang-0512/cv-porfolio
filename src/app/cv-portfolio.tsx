@@ -30,9 +30,7 @@ import {
   certificates,
   projects,
 } from "@/data/constants";
-import CardSwap, { Card } from "@/components/ui/CardSwap";
-import "@/components/ui/CardSwap.css";
-import Lanyard from "@/components/Lanyard";
+import ScrollStack, { ScrollStackItem } from "@/components/ScrollStack";
 
 // Animated Counter Component
 const AnimatedCounter = ({
@@ -95,109 +93,28 @@ const AnimatedCounter = ({
   );
 };
 
-// Thêm CSS styles cho animation
-const carouselStyles = `
-  .certificate-carousel {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    gap: 20px; /* Add gap between flex items */
-  }
-  .certificate-item {
-    min-width: calc(33.333% - 14px); /* Adjust width to account for gap */
-    flex: 0 0 calc(33.333% - 14px);
-    padding: 0 8px;
-    opacity: 1;
-    transform: translateX(0);
-    transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-  }
-  .certificate-item-entering {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  .certificate-item-exiting {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  
-  /* Stats animation styles */
-  .animate-pulse-slow {
-    animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  @keyframes pulse-slow {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.8;
-    }
-  }
-    .stat-number {
-    transition: all 0.3s ease;
-  }
-  
-  /* Nav button animations */
-  @keyframes gentle-pulse {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.03);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-  
-  .nav-btn:hover {
-    animation: gentle-pulse 0.8s ease-in-out;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .stat-number:hover {
-    transform: scale(1.2);
-    filter: brightness(1.2);
-    text-shadow: 0 0 8px currentColor;
-  }
-  
-  .stat-card {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-    transform: translateX(-100%);
-    transition: transform 0.5s ease;
-  }
-  
-  .stat-card:hover::before {
-    transform: translateX(100%);
-  }
-  
-  /* Animation for fade-in and slide-up */
-  .fade-in-up {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), transform 0.7s cubic-bezier(0.4,0,0.2,1);
-  }
-  .fade-in-up.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
+// Theme Toggle Button Component
+const ThemeToggle = ({
+  darkMode,
+  toggleDarkMode,
+}: {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+}) => {
+  return (
+    <button
+      onClick={toggleDarkMode}
+      className="theme-toggle"
+      aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
+      title={darkMode ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
+    >
+      {darkMode ? <Sun className="icon" /> : <Moon className="icon" />}
+    </button>
+  );
+};
 
 export default function Component() {
   const [darkMode, setDarkMode] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const certificatesPerPage = 3;
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
     // Theme handling
@@ -214,30 +131,20 @@ export default function Component() {
     }
   }, []);
 
-  // Carousel rotation with transition
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIsTransitioning(true);
-      setTimeout(() => {
-        setActiveIndex((current) =>
-          current + certificatesPerPage >= certificates.length
-            ? 0
-            : current + certificatesPerPage
-        );
-        setIsTransitioning(false);
-      }, 500); // Match with CSS transition duration
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
-
   // Hàm chuyển đổi dark mode
-  const toggleDarkMode = () => setDarkMode((prev) => !prev);
+  const toggleDarkMode = () => {
+    const newDarkMode = !darkMode;
+    setDarkMode(newDarkMode);
 
-  const visibleCertificates = certificates.slice(
-    activeIndex,
-    activeIndex + certificatesPerPage
-  );
+    if (newDarkMode) {
+      document.documentElement.classList.add("dark");
+      localStorage.theme = "dark";
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.theme = "light";
+    }
+  };
+
   const [scrolled, setScrolled] = useState(false);
 
   // Add scroll event listener
@@ -255,146 +162,167 @@ export default function Component() {
     };
   }, [scrolled]);
 
-  // Animation for scroll into view
-  const gradeRef = useRef<HTMLDivElement>(null);
-  const skillRef = useRef<HTMLDivElement>(null);
-  const [gradeVisible, setGradeVisible] = useState(false);
-  const [skillVisible, setSkillVisible] = useState(false);
-
-  useEffect(() => {
-    const handleObserver = (
-      ref: React.RefObject<HTMLDivElement | null>,
-      setVisible: React.Dispatch<React.SetStateAction<boolean>>
-    ) => {
-      if (!ref.current) return;
-      const observer = new window.IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setVisible(true);
-            observer.disconnect();
-          }
-        },
-        { threshold: 0.2 }
-      );
-      observer.observe(ref.current);
-    };
-    handleObserver(gradeRef, setGradeVisible);
-    handleObserver(skillRef, setSkillVisible);
-  }, []);
-
   return (
-    <div
-      className={`min-h-screen transition-colors duration-300 ${
-        darkMode
-          ? "bg-gray-900"
-          : "bg-gradient-to-br from-blue-50 to-indigo-100"
-      }`}
-    >
-      {" "}
-      {/* Fluid cursor effect */}
-      {/* <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', zIndex: 100 }}>        <SplashCursor 
-          SPLAT_RADIUS={0.06}
-          CURL={0.6}
-          DENSITY_DISSIPATION={9.5}
-          VELOCITY_DISSIPATION={6.5}
-          COLOR_UPDATE_SPEED={3}
-          SPLAT_FORCE={1500}
-          TRANSPARENT={true}
-        />
-      </div> */}
-      {/* Header */}{" "}
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      {/* Header */}
       <div
-        className={`relative w-full mb-8 ${scrolled ? "py-4" : "py-6"} ${
-          darkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-        } border-b transition-all duration-300 shadow-sm`}
+        className={`relative w-full mb-8 ${
+          scrolled ? "py-4" : "py-6"
+        } bg-gradient-to-r from-slate-900 via-purple-900 to-slate-900 transition-all duration-300 shadow-2xl overflow-hidden`}
       >
-        <div className="container mx-auto px-4">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-20 left-1/2 w-60 h-60 bg-pink-500/10 rounded-full blur-2xl animate-pulse delay-500"></div>
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
           <div className="flex justify-between items-start py-2">
-            <div className="flex items-start gap-6">
-              <div className="relative animate-float mt-1">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full blur-lg opacity-30"></div>
-                <Image
-                  src="/cannhan1.png"
-                  alt="Profile"
-                  width={140}
-                  height={140}
-                  className="relative rounded-full border-4 border-white shadow-xl"
-                />
-                <div className="absolute -bottom-2 -right-2 bg-green-500 w-8 h-8 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
+            <div className="flex items-start gap-8">
+              {/* Enhanced Profile Image */}
+              <div className="relative group">
+                {/* Glowing ring effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 rounded-full blur-xl opacity-75 group-hover:opacity-100 transition-all duration-500 animate-pulse"></div>
+
+                {/* Main profile image container */}
+                <div className="relative w-48 h-48 rounded-full shadow-2xl overflow-hidden transform group-hover:scale-105 transition-all duration-500 hover:rotate-3 profile-image-container">
+                  <Image
+                    src="/canhan1.png"
+                    alt="Profile"
+                    fill
+                    className="object-cover transition-all duration-500 group-hover:scale-110"
+                  />
+
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                  {/* Shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                </div>
+
+                {/* Floating elements around profile */}
+                <div className="absolute -top-2 -right-2 bg-green-500 w-10 h-10 rounded-full shadow-lg animate-bounce">
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
+                  </div>
+                </div>
+
+                <div className="absolute -bottom-2 -left-2 bg-blue-500 w-8 h-8 rounded-full shadow-lg animate-bounce delay-300">
+                  <div className="w-full h-full flex items-center justify-center">
+                    <div className="w-1.5 h-1.5 bg-white rounded-full"></div>
+                  </div>
+                </div>
+
+                {/* Decorative dots */}
+                <div className="absolute top-4 left-4 w-3 h-3 bg-yellow-400 rounded-full animate-pulse delay-700"></div>
+                <div className="absolute bottom-6 right-6 w-2 h-2 bg-pink-400 rounded-full animate-ping delay-1000"></div>
+
+                {/* Floating particles */}
+                <div className="floating-particle w-2 h-2 top-8 right-8 animate-pulse delay-500"></div>
+                <div className="floating-particle w-1.5 h-1.5 bottom-8 left-8 animate-pulse delay-700"></div>
               </div>
-              <div className="flex-1">
-                <h1
-                  className={`text-xl font-semibold mb-1 ${
-                    darkMode ? "text-gray-100" : "text-gray-900"
-                  }`}
-                >
-                  Trương Nguyễn Hoàng
-                </h1>
-                <p
-                  className={`${
-                    darkMode ? "text-blue-400" : "text-blue-600"
-                  } hover:text-blue-500 transition-colors mb-1`}
-                >
-                  Full Stack Developer
-                </p>
-                <p
-                  className={`text-sm mb-2 max-w-2xl ${
-                    darkMode ? "text-gray-300" : "text-gray-600"
-                  }`}
-                >
-                  Passionate developer với 1 năm kinh nghiệm trong việc xây dựng
-                  ứng dụng web hiện đại. Chuyên về React, Node.js và cloud
-                  technologies.
-                </p>
-                <div
-                  className={`flex flex-wrap items-center gap-x-4 gap-y-2 text-sm ${
-                    darkMode ? "text-gray-300" : "text-gray-600"
-                  }`}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <MapPin className="w-4 h-4" />
-                    Hồ Chí Minh, Việt Nam
+
+              {/* Enhanced Text Content */}
+              <div className="flex-1 space-y-4 animate-slide-in-right">
+                <div className="space-y-2">
+                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent animate-fade-in gradient-text">
+                    Trương Nguyễn Hoàng
+                  </h1>
+                  <div className="flex items-center gap-3 animate-slide-in-left">
+                    <div className="px-4 py-2 rounded-full backdrop-blur-sm hover:scale-105 transition-all duration-300 transform">
+                      <p className="text-blue-300 font-semibold text-lg">
+                        Full Stack Developer
+                      </p>
+                    </div>
+                    <div className="px-3 py-1 rounded-full hover:scale-105 transition-all duration-300 transform">
+                      <span className="text-green-300 text-sm font-medium">
+                        Available
+                      </span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Mail className="w-4 h-4" />
-                    truongnguyenhoang0512@gmail.com
+                </div>
+
+                <p className="text-lg text-gray-200 leading-relaxed max-w-2xl animate-fade-in">
+                  Passionate developer với{" "}
+                  <span className="text-yellow-300 font-semibold animate-pulse">
+                    1 năm kinh nghiệm
+                  </span>{" "}
+                  trong việc xây dựng ứng dụng web hiện đại. Chuyên về{" "}
+                  <span className="text-blue-300 font-semibold">React</span>,{" "}
+                  <span className="text-green-300 font-semibold">Node.js</span>{" "}
+                  và{" "}
+                  <span className="text-purple-300 font-semibold">
+                    cloud technologies
+                  </span>
+                  .
+                </p>
+
+                {/* Enhanced Contact Info */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-scale-in">
+                  <div className="group flex items-center gap-3 p-3 rounded-lg hover:scale-105 enhanced-btn transition-all duration-300">
+                    <div className="p-2 rounded-lg group-hover:scale-110 transition-all duration-300">
+                      <MapPin className="w-5 h-5 text-blue-300" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400 uppercase tracking-wider">
+                        Location
+                      </p>
+                      <p className="text-white font-medium">
+                        Hồ Chí Minh, Việt Nam
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Phone className="w-4 h-4" />
-                    (+84) 973 335 3430
+
+                  <div className="group flex items-center gap-3 p-3 rounded-lg hover:scale-105 enhanced-btn transition-all duration-300">
+                    <div className="p-2 rounded-lg group-hover:scale-110 transition-all duration-300">
+                      <Mail className="w-5 h-5 text-green-300" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400 uppercase tracking-wider">
+                        Email
+                      </p>
+                      <p className="text-white font-medium">
+                        truongnguyenhoang0512@gmail.com
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="group flex items-center gap-3 p-3 rounded-lg hover:scale-105 enhanced-btn transition-all duration-300">
+                    <div className="p-2 rounded-lg group-hover:scale-110 transition-all duration-300">
+                      <Phone className="w-5 h-5 text-purple-300" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-400 uppercase tracking-wider">
+                        Phone
+                      </p>
+                      <p className="text-white font-medium">
+                        (+84) 973 335 3430
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-            {/* Thay nút sáng/tối bằng Lanyard */}
-            <div
-              style={{
-                width: 80,
-                height: 80,
-                minWidth: 60,
-                minHeight: 60,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "flex-end",
-              }}
-            >
-              <Lanyard
-                position={[0, 0, 20]}
-                gravity={[0, -40, 0]}
-                toggleDarkMode={toggleDarkMode}
-              />
+
+            {/* Enhanced Theme Toggle */}
+            <div className="flex items-center justify-center w-20 h-20">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full blur-lg opacity-0 group-hover:opacity-75 transition-opacity duration-300"></div>
+                <ThemeToggle
+                  darkMode={darkMode}
+                  toggleDarkMode={toggleDarkMode}
+                />
+              </div>
             </div>
-          </div>{" "}
-          {/* Navigation Buttons */}
-          <div className="flex flex-wrap gap-3 mt-4 mb-3 justify-start items-center bg-opacity-50 rounded-lg py-2">
+          </div>
+
+          {/* Enhanced Navigation Buttons */}
+          <div className="flex flex-wrap gap-4 mt-6 mb-3 justify-start items-center">
             <Button
-              variant={darkMode ? "ghost" : "outline"}
-              size="sm"
-              className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
-                darkMode
-                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-blue-600/20 hover:text-blue-400 hover:border-blue-700"
-                  : "bg-white text-gray-700 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-300"
-              }`}
+              variant="outline"
+              size="lg"
+              className="nav-btn group flex items-center gap-3 px-8 py-4 rounded-2xl transition-all duration-500 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 text-white hover:from-gray-700 hover:via-gray-600 hover:to-gray-700 hover:scale-110 hover:shadow-2xl hover:shadow-gray-500/50 enhanced-btn transform hover:-translate-y-1"
               asChild
             >
               <a
@@ -402,27 +330,23 @@ export default function Component() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {/* GitHub icon */}
-                <svg
-                  className={`w-4 h-4 ${
-                    darkMode ? "text-blue-400" : "text-blue-600"
-                  }`}
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.157-1.11-1.465-1.11-1.465-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.091-.647.35-1.088.636-1.339-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.847-2.337 4.695-4.566 4.944.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .267.18.577.688.48C19.138 20.2 22 16.447 22 12.021 22 6.484 17.523 2 12 2z" />
-                </svg>
-                GitHub
+                <div className="/30 transition-all duration-300 group-hover:scale-110">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M12 2C6.477 2 2 6.484 2 12.021c0 4.428 2.865 8.184 6.839 9.504.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.342-3.369-1.342-.454-1.157-1.11-1.465-1.11-1.465-.908-.62.069-.608.069-.608 1.004.07 1.532 1.032 1.532 1.032.892 1.53 2.341 1.088 2.91.832.091-.647.35-1.088.636-1.339-2.221-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.025A9.564 9.564 0 0 1 12 6.844c.85.004 1.705.115 2.504.337 1.909-1.295 2.748-1.025 2.748-1.025.546 1.378.202 2.397.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.847-2.337 4.695-4.566 4.944.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.749 0 .267.18.577.688.48C19.138 20.2 22 16.447 22 12.021 22 6.484 17.523 2 12 2z" />
+                  </svg>
+                </div>
+                <span className="font-bold text-lg">GitHub</span>
               </a>
             </Button>
+
             <Button
-              variant={darkMode ? "ghost" : "outline"}
-              size="sm"
-              className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
-                darkMode
-                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-purple-600/20 hover:text-purple-400 hover:border-purple-700"
-                  : "bg-white text-gray-700 hover:bg-purple-50 hover:text-purple-700 hover:border-purple-300"
-              }`}
+              variant="outline"
+              size="lg"
+              className="nav-btn group flex items-center gap-3 px-8 py-4 rounded-2xl transition-all duration-500 bg-gradient-to-r from-blue-600  to-blue-600 text-white hover:from-blue-500 hover:to-blue-500 hover:scale-110 hover:shadow-2xl hover:shadow-blue-500/50 enhanced-btn transform hover:-translate-y-1"
               asChild
             >
               <a
@@ -430,27 +354,23 @@ export default function Component() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {/* Facebook icon */}
-                <svg
-                  className={`w-4 h-4 ${
-                    darkMode ? "text-purple-400" : "text-purple-600"
-                  }`}
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.408.595 24 1.325 24h11.495v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.408 24 22.674V1.326C24 .592 23.406 0 22.675 0" />
-                </svg>
-                Facebook
+                <div className="/30 transition-all duration-300 group-hover:scale-110">
+                  <svg
+                    className="w-6 h-6 text-white"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M22.675 0h-21.35C.595 0 0 .592 0 1.326v21.348C0 23.408.595 24 1.325 24h11.495v-9.294H9.692v-3.622h3.128V8.413c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.797.143v3.24l-1.918.001c-1.504 0-1.797.715-1.797 1.763v2.313h3.587l-.467 3.622h-3.12V24h6.116C23.406 24 24 23.408 24 22.674V1.326C24 .592 23.406 0 22.675 0" />
+                  </svg>
+                </div>
+                <span className="font-bold text-lg">Facebook</span>
               </a>
             </Button>
+
             <Button
-              variant={darkMode ? "ghost" : "outline"}
-              size="sm"
-              className={`nav-btn flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-200 ${
-                darkMode
-                  ? "bg-gray-700/40 text-gray-200 border-gray-600 hover:bg-green-600/20 hover:text-green-400 hover:border-green-700"
-                  : "bg-white text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-300"
-              }`}
+              variant="outline"
+              size="lg"
+              className="nav-btn group flex items-center gap-3 px-8 py-4 rounded-2xl transition-all duration-500 bg-gradient-to-r from-red-600 via-red-500 to-red-600 text-white hover:from-red-500 hover:via-red-400 hover:to-red-500 hover:scale-110 hover:shadow-2xl hover:shadow-red-500/50 enhanced-btn transform hover:-translate-y-1"
               asChild
             >
               <a
@@ -458,36 +378,24 @@ export default function Component() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {/* Mail icon */}
-                <Mail
-                  className={`w-4 h-4 ${
-                    darkMode ? "text-green-400" : "text-green-600"
-                  }`}
-                />
-                Gmail
+                <div className="/30 transition-all duration-300 group-hover:scale-110">
+                  <Mail className="w-6 h-6 text-white" />
+                </div>
+                <span className="font-bold text-lg">Gmail</span>
               </a>
             </Button>
           </div>
         </div>
       </div>
+
       {/* Main Content */}
       <div className="container mx-auto px-4 py-10 space-y-8">
         {/* Về tôi - Giới thiệu - Mục tiêu nghề nghiệp */}
         <div className="space-y-6">
           {/* Giới thiệu bản thân */}
-          <div
-            className={`rounded-lg border ${
-              darkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
-            } p-6`}
-          >
+          <div className="rounded-lg border bg-card border-border p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div
-                className={`p-1.5 rounded-full ${
-                  darkMode ? "bg-blue-900/50" : "bg-blue-100"
-                }`}
-              >
+              <div className="p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/50">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -498,35 +406,23 @@ export default function Component() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`${darkMode ? "text-blue-400" : "text-blue-600"}`}
+                  className="text-blue-600 dark:text-blue-400"
                 >
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                   <circle cx="12" cy="7" r="4"></circle>
                 </svg>
               </div>
-              <h2
-                className={`font-medium ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
+              <h2 className="font-medium text-card-foreground">
                 Giới Thiệu Bản Thân
               </h2>
             </div>
-            <p
-              className={`text-sm mb-4 ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
+            <p className="text-sm mb-4 text-muted-foreground">
               Xin chào! Tôi là Trương Nguyễn Hoàng, một Full Stack Developer đầy
               đam mê với hơn 1 năm kinh nghiệm trong việc xây dựng các ứng dụng
               web hiện đại. Tôi rất hứng thú với các thay đổi thế giới và luôn
               cố gắng tạo ra những sản phẩm có ý nghĩa.
             </p>
-            <p
-              className={`text-sm ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
+            <p className="text-sm text-muted-foreground">
               Điều tôi yêu thích nhất trong lập trình là khả năng biến những ý
               tưởng thảo thành những sản phẩm thực tế có thể giúp ích cho mọi
               người. Tôi luôn học hỏi các công nghệ mới và không ngừng cải thiện
@@ -535,19 +431,9 @@ export default function Component() {
           </div>
 
           {/* Mục tiêu nghề nghiệp */}
-          <div
-            className={`rounded-lg border ${
-              darkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
-            } p-6`}
-          >
+          <div className="rounded-lg border bg-card border-border p-6">
             <div className="flex items-center gap-2 mb-4">
-              <div
-                className={`p-1.5 rounded-full ${
-                  darkMode ? "bg-green-900/50" : "bg-green-100"
-                }`}
-              >
+              <div className="p-1.5 rounded-full bg-green-100 dark:bg-green-900/50">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="18"
@@ -558,117 +444,59 @@ export default function Component() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`${
-                    darkMode ? "text-green-400" : "text-green-600"
-                  }`}
+                  className="text-green-600 dark:text-green-400"
                 >
-                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+                  <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1 1.275-1.275L12 3Z" />
                 </svg>
               </div>
-              <h2
-                className={`font-medium ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
+              <h2 className="font-medium text-card-foreground">
                 Mục Tiêu Nghề Nghiệp
               </h2>
             </div>
-            <p
-              className={`text-sm mb-4 ${
-                darkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
+            <p className="text-sm mb-4 text-muted-foreground">
               Trở thành một Senior Full Stack Developer trong 2 năm tới, đóng
               góp vào các dự án có tác động tích cực đến cộng đồng và xây dựng
               team phát triển mạnh mẽ.
             </p>
             {/* Thống kê cá nhân */}
             <div className="mt-6">
-              <h3
-                className={`text-sm font-medium mb-4 ${
-                  darkMode ? "text-gray-200" : "text-gray-700"
-                }`}
-              >
+              <h3 className="text-sm font-medium mb-4 text-card-foreground">
                 Thống Kê Cá Nhân
-              </h3>{" "}
+              </h3>
               <div className="grid grid-cols-4 gap-4 text-center">
-                <div
-                  className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${
-                    darkMode
-                      ? "bg-gray-700/50 hover:bg-gray-700"
-                      : "bg-gray-50 hover:bg-gray-100"
-                  }`}
-                >
+                <div className="stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 bg-secondary hover:bg-accent">
                   <AnimatedCounter
                     value={25}
                     suffix="+"
-                    color={darkMode ? "text-blue-400" : "text-blue-600"}
+                    color="text-blue-600 dark:text-blue-400"
                   />
-                  <p
-                    className={`text-xs mt-1 ${
-                      darkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  >
-                    Dự án
-                  </p>
+                  <p className="text-xs mt-1 text-muted-foreground">Dự án</p>
                 </div>
-                <div
-                  className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${
-                    darkMode
-                      ? "bg-gray-700/50 hover:bg-gray-700"
-                      : "bg-gray-50 hover:bg-gray-100"
-                  }`}
-                >
+                <div className="stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 bg-secondary hover:bg-accent">
                   <AnimatedCounter
                     value={3}
                     suffix="+"
-                    color={darkMode ? "text-green-400" : "text-green-600"}
+                    color="text-green-600 dark:text-green-400"
                   />
-                  <p
-                    className={`text-xs mt-1 ${
-                      darkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  >
-                    Công ty
-                  </p>
+                  <p className="text-xs mt-1 text-muted-foreground">Công ty</p>
                 </div>
-                <div
-                  className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${
-                    darkMode
-                      ? "bg-gray-700/50 hover:bg-gray-700"
-                      : "bg-gray-50 hover:bg-gray-100"
-                  }`}
-                >
+                <div className="stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 bg-secondary hover:bg-accent">
                   <AnimatedCounter
                     value={15}
                     suffix="+"
-                    color={darkMode ? "text-purple-400" : "text-purple-600"}
+                    color="text-purple-600 dark:text-purple-400"
                   />
-                  <p
-                    className={`text-xs mt-1 ${
-                      darkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  >
+                  <p className="text-xs mt-1 text-muted-foreground">
                     Chứng chỉ
                   </p>
                 </div>
-                <div
-                  className={`stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 ${
-                    darkMode
-                      ? "bg-gray-700/50 hover:bg-gray-700"
-                      : "bg-gray-50 hover:bg-gray-100"
-                  }`}
-                >
+                <div className="stat-card p-3 rounded-md transform transition-all duration-300 hover:scale-105 bg-secondary hover:bg-accent">
                   <AnimatedCounter
                     value={8}
                     suffix=""
-                    color={darkMode ? "text-orange-400" : "text-orange-600"}
+                    color="text-orange-600 dark:text-orange-400"
                   />
-                  <p
-                    className={`text-xs mt-1 ${
-                      darkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  >
+                  <p className="text-xs mt-1 text-muted-foreground">
                     Công nghệ
                   </p>
                 </div>
@@ -679,35 +507,14 @@ export default function Component() {
 
         <div className="grid md:grid-cols-2 gap-6">
           {/* Academic Grades Chart */}
-          <div
-            ref={gradeRef}
-            className={`rounded-lg border ${
-              darkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
-            } p-6 transition-colors duration-300 fade-in-up${
-              gradeVisible ? " visible" : ""
-            }`}
-          >
+          <div className="rounded-lg border bg-card border-border p-6 transition-colors duration-300">
             <div className="flex items-center gap-2 mb-1">
-              <Star
-                className={`w-4 h-4 ${
-                  darkMode ? "text-yellow-400" : "text-yellow-500"
-                }`}
-              />
-              <h2
-                className={`font-medium ${
-                  darkMode ? "text-white" : "text-gray-900"
-                }`}
-              >
+              <Star className="w-4 h-4 text-yellow-500 dark:text-yellow-400" />
+              <h2 className="font-medium text-card-foreground">
                 Bảng Điểm Học Tập
               </h2>
             </div>
-            <p
-              className={`text-sm ${
-                darkMode ? "text-gray-400" : "text-gray-500"
-              } mb-4`}
-            >
+            <p className="text-sm text-muted-foreground mb-4">
               Điểm trung bình các kì học
             </p>
             <div className="h-[240px]">
@@ -763,17 +570,9 @@ export default function Component() {
               </ResponsiveContainer>
             </div>
             <div className="mt-2 text-center">
-              <p
-                className={`text-sm ${
-                  darkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              <p className="text-sm text-muted-foreground">
                 Điểm trung bình:{" "}
-                <span
-                  className={`font-medium ${
-                    darkMode ? "text-emerald-400" : "text-emerald-600"
-                  }`}
-                >
+                <span className="font-medium text-emerald-600 dark:text-emerald-400">
                   8.47/10
                 </span>
               </p>
@@ -781,69 +580,31 @@ export default function Component() {
           </div>
 
           {/* Skills */}
-          <div
-            ref={skillRef}
-            className={`rounded-lg border ${
-              darkMode
-                ? "bg-gray-800 border-gray-700"
-                : "bg-white border-gray-200"
-            } p-6 transition-colors duration-300 fade-in-up${
-              skillVisible ? " visible" : ""
-            }`}
-          >
-            <h2
-              className={`font-medium mb-1 ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
+          <div className="rounded-lg border bg-card border-border p-6 transition-colors duration-300">
+            <h2 className="font-medium mb-1 text-card-foreground">
               Kỹ Năng Chuyên Môn
             </h2>
-            <p
-              className={`text-sm ${
-                darkMode ? "text-gray-400" : "text-gray-500"
-              } mb-6`}
-            >
+            <p className="text-sm text-muted-foreground mb-6">
               Mức độ thành thạo các công nghệ
             </p>
             <div className="space-y-5">
               {skillsData.map((skill, index) => (
                 <div
                   key={index}
-                  className={`group transition-transform duration-500 ease-out ${
-                    skillVisible
-                      ? "translate-x-0 opacity-100"
-                      : "translate-x-10 opacity-0"
-                  }`}
-                  style={{ transitionDelay: `${index * 80}ms` }}
+                  className="group transition-transform duration-500 ease-out"
                 >
                   <div className="flex justify-between text-sm mb-2">
-                    <span
-                      className={`font-medium ${
-                        darkMode ? "text-gray-200" : "text-gray-700"
-                      }`}
-                    >
+                    <span className="font-medium text-card-foreground">
                       {skill.skill}
                     </span>
-                    <span
-                      className={`${
-                        darkMode ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
+                    <span className="text-muted-foreground">
                       {skill.level}%
                     </span>
                   </div>
-                  <div
-                    className={`h-2 w-full ${
-                      darkMode ? "bg-gray-700" : "bg-gray-100"
-                    } rounded-full overflow-hidden transition-colors duration-300`}
-                  >
+                  <div className="h-2 w-full bg-secondary rounded-full overflow-hidden transition-colors duration-300">
                     <div
-                      className={`h-full rounded-full transition-all duration-700 ease-out ${
-                        darkMode ? "bg-emerald-500" : "bg-emerald-600"
-                      } group-hover:${
-                        darkMode ? "bg-emerald-400" : "bg-emerald-500"
-                      }`}
-                      style={{ width: skillVisible ? `${skill.level}%` : "0%" }}
+                      className="h-full rounded-full transition-all duration-700 ease-out bg-emerald-600 dark:bg-emerald-500 group-hover:bg-emerald-500 dark:group-hover:bg-emerald-400"
+                      style={{ width: `${skill.level}%` }}
                     />
                   </div>
                 </div>
@@ -853,95 +614,68 @@ export default function Component() {
         </div>
 
         {/* Certificates Section */}
-        <div
-          className={`rounded-lg border ${
-            darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          } p-6 overflow-hidden relative min-h-[420px] flex flex-col justify-center`}
-        >
-          <div className="w-full flex flex-col items-start justify-center h-full">
-            <h2
-              className="font-bold text-4xl md:text-5xl text-left w-full mb-2 tracking-tight"
-              style={{ color: darkMode ? "#fff" : "#18181b" }}
-            >
+        <div className="rounded-lg border bg-card border-border p-6 overflow-hidden relative">
+          <div className="w-full flex flex-col items-start justify-center mb-8">
+            <h2 className="font-bold text-4xl md:text-5xl text-left w-full mb-2 tracking-tight text-card-foreground">
               Chứng Chỉ & Giải Thưởng
             </h2>
-            <p className="text-lg text-left w-full text-gray-400 mb-8">
+            <p className="text-lg text-left w-full text-muted-foreground">
               Các chứng chỉ chuyên môn đã đạt được
             </p>
           </div>
 
-          {/* CardSwap Animation */}
-          <div style={{ height: "400px", position: "relative" }}>
-            <CardSwap
-              cardDistance={60}
-              verticalDistance={70}
-              delay={5000}
-              pauseOnHover={false}
+          {/* ScrollStack Animation */}
+          <div className="h-[600px] w-full">
+            <ScrollStack
+              itemDistance={80}
+              itemScale={0.05}
+              itemStackDistance={40}
+              stackPosition="25%"
+              scaleEndPosition="15%"
+              baseScale={0.8}
+              rotationAmount={2}
+              blurAmount={0.5}
+              onStackComplete={() => console.log("Stack animation completed!")}
             >
-              {certificates.slice(0, 5).map((cert, idx) => (
-                <Card
-                  key={idx}
-                  customClass={
-                    darkMode
-                      ? "bg-gray-700 border-gray-600 text-white"
-                      : "bg-white border-gray-200 text-gray-900"
-                  }
-                >
-                  <div className="flex flex-col items-center justify-center h-full p-6">
-                    <div className="mb-4 flex justify-center items-center w-full">
+              {certificates.slice(0, 6).map((cert, idx) => (
+                <ScrollStackItem key={idx}>
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <div className="mb-6 flex justify-center items-center w-full">
                       <img
                         src={cert.image}
                         alt={cert.name}
-                        className="w-90 h-100 object-contain rounded-2xl border mb-2 shadow-lg bg-white"
-                        style={{ maxWidth: '100%', maxHeight: '180px' }}
+                        className="w-full h-48 object-contain rounded-2xl border shadow-lg bg-white dark:bg-gray-800"
+                        style={{ maxWidth: "100%", maxHeight: "180px" }}
                       />
                     </div>
-                    <h4 className="font-semibold text-base text-center mb-2 line-clamp-2 h-10">
+                    <h4 className="font-semibold text-lg text-center mb-3 text-card-foreground line-clamp-2">
                       {cert.name}
                     </h4>
-                    <p className="text-xs text-center mb-1 truncate">
+                    <p className="text-sm text-center mb-2 text-muted-foreground">
                       {cert.issuer}
                     </p>
-                    <div className="flex items-center justify-center gap-1">
-                      <Calendar className="w-3 h-3 text-gray-400" />
-                      <span className="text-xs text-gray-400">{cert.date}</span>
+                    <div className="flex items-center justify-center gap-2">
+                      <Calendar className="w-4 h-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        {cert.date}
+                      </span>
                     </div>
                   </div>
-                </Card>
+                </ScrollStackItem>
               ))}
-            </CardSwap>
+            </ScrollStack>
           </div>
         </div>
 
         {/* Projects */}
-        <div
-          className={`rounded-lg border ${
-            darkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          } p-6`}
-        >
+        <div className="rounded-lg border bg-card border-border p-6">
           <div className="flex items-center gap-2 mb-1">
-            <ExternalLink
-              className={`w-4 h-4 ${
-                darkMode ? "text-blue-400" : "text-blue-600"
-              }`}
-            />
-            <h2
-              className={`font-medium ${
-                darkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
+            <ExternalLink className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            <h2 className="font-medium text-card-foreground">
               Dự Án Đã Thực Hiện
             </h2>
           </div>
-          <p
-            className={`text-sm ${
-              darkMode ? "text-gray-400" : "text-gray-500"
-            } mb-6`}
-          >
+          <p className="text-sm text-muted-foreground mb-6">
             Các dự án nổi bật trong quá trình học tập và làm việc
           </p>
 
@@ -949,11 +683,7 @@ export default function Component() {
             {projects.map((project, index) => (
               <div
                 key={index}
-                className={`group rounded-lg overflow-hidden ${
-                  darkMode
-                    ? "bg-gray-700/50 hover:bg-gray-700/70"
-                    : "bg-gray-50 hover:bg-gray-100"
-                } transition-all duration-300`}
+                className="group rounded-lg overflow-hidden bg-secondary hover:bg-accent transition-all duration-300"
               >
                 <div className="aspect-video relative overflow-hidden">
                   <Image
@@ -964,29 +694,17 @@ export default function Component() {
                   />
                 </div>
                 <div className="p-4">
-                  <h3
-                    className={`font-medium mb-2 ${
-                      darkMode ? "text-gray-100" : "text-gray-900"
-                    }`}
-                  >
+                  <h3 className="font-medium mb-2 text-card-foreground">
                     {project.title}
                   </h3>
-                  <p
-                    className={`text-sm mb-3 ${
-                      darkMode ? "text-gray-300" : "text-gray-600"
-                    }`}
-                  >
+                  <p className="text-sm mb-3 text-muted-foreground">
                     {project.description}
                   </p>
                   <div className="flex flex-wrap gap-2 mb-4">
                     {project.tech.map((tech, techIndex) => (
                       <span
                         key={techIndex}
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          darkMode
-                            ? "bg-gray-600 text-gray-200"
-                            : "bg-gray-200 text-gray-700"
-                        }`}
+                        className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground"
                       >
                         {tech}
                       </span>
@@ -998,11 +716,7 @@ export default function Component() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className={`flex-1 ${
-                        darkMode
-                          ? "bg-gray-700 text-white border-gray-600 hover:bg-gray-600"
-                          : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-                      }`}
+                      className="flex-1 bg-card text-card-foreground border-border hover:bg-accent"
                       asChild
                     >
                       <a
@@ -1034,11 +748,7 @@ export default function Component() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className={`flex-1 ${
-                        darkMode
-                          ? "bg-blue-700 text-white border-blue-600 hover:bg-blue-600"
-                          : "bg-blue-100 text-blue-800 hover:bg-blue-200"
-                      }`}
+                      className="flex-1 bg-blue-100 dark:bg-blue-700 text-blue-800 dark:text-white border-blue-300 dark:border-blue-600 hover:bg-blue-200 dark:hover:bg-blue-600"
                       asChild
                     >
                       <a
@@ -1077,30 +787,38 @@ export default function Component() {
         {/* Education & Experience */}
         <div className="grid md:grid-cols-2 gap-6">
           {/* Education */}
-          <div className="bg-white rounded-lg border p-6">
-            <h2 className="font-medium mb-1">Học Vấn</h2>
-            <p className="text-sm text-gray-500 mb-6">Quá trình học tập</p>
+          <div className="bg-card rounded-lg border border-border p-6">
+            <h2 className="font-medium mb-1 text-card-foreground">Học Vấn</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Quá trình học tập
+            </p>
             <div className="space-y-6">
-              <div className="relative pl-6 pb-6 border-l-2 border-blue-100">
+              <div className="relative pl-6 pb-6 border-l-2 border-blue-100 dark:border-blue-800">
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-blue-500 border-[3px] border-white" />
-                <h4 className="font-medium text-gray-900"></h4>
-                <p className="text-sm text-blue-600 mt-0.5">
+                <h4 className="font-medium text-card-foreground"></h4>
+                <p className="text-sm text-blue-600 dark:text-blue-400 mt-0.5">
                   Đại học Bách Khoa TP.HCM
                 </p>
-                <p className="text-sm text-gray-500 mt-0.5">
+                <p className="text-sm text-muted-foreground mt-0.5">
                   2020 - 2024 | GPA: 3.8/4.0
                 </p>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Chuyên ngành: Kỹ thuật phần mềm
                 </p>
               </div>
 
-              <div className="relative pl-6 border-l-2 border-green-100">
+              <div className="relative pl-6 border-l-2 border-green-100 dark:border-green-800">
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-green-500 border-[3px] border-white" />
-                <h4 className="font-medium text-gray-900">Tốt nghiệp THPT</h4>
-                <p className="text-sm text-green-600 mt-0.5">THPT B Phủ Lý</p>
-                <p className="text-sm text-gray-500 mt-0.5">2019-2022</p>
-                <p className="text-sm text-gray-600 mt-1">
+                <h4 className="font-medium text-card-foreground">
+                  Tốt nghiệp THPT
+                </h4>
+                <p className="text-sm text-green-600 dark:text-green-400 mt-0.5">
+                  THPT B Phủ Lý
+                </p>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  2019-2022
+                </p>
+                <p className="text-sm text-muted-foreground mt-1">
                   Khối A - Toán, Lý, Hóa
                 </p>
               </div>
@@ -1108,34 +826,42 @@ export default function Component() {
           </div>
 
           {/* Experience */}
-          <div className="bg-white rounded-lg border p-6">
-            <h2 className="font-medium mb-1">Kinh Nghiệm Làm Việc</h2>
-            <p className="text-sm text-gray-500 mb-6">Quá trình làm việc</p>
+          <div className="bg-card rounded-lg border border-border p-6">
+            <h2 className="font-medium mb-1 text-card-foreground">
+              Kinh Nghiệm Làm Việc
+            </h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Quá trình làm việc
+            </p>
             <div className="space-y-6">
-              <div className="relative pl-6 pb-6 border-l-2 border-purple-100">
+              <div className="relative pl-6 pb-6 border-l-2 border-purple-100 dark:border-purple-800">
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-purple-500 border-[3px] border-white" />
-                <h4 className="font-medium text-gray-900">
+                <h4 className="font-medium text-card-foreground">
                   Frontend Developer
                 </h4>
-                <p className="text-sm text-purple-600 mt-0.5">
+                <p className="text-sm text-purple-600 dark:text-purple-400 mt-0.5">
                   TechCorp Vietnam
                 </p>
-                <p className="text-sm text-gray-500 mt-0.5">
+                <p className="text-sm text-muted-foreground mt-0.5">
                   01/2024 - Hiện tại
                 </p>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Phát triển ứng dụng web với React, TypeScript
                 </p>
               </div>
 
-              <div className="relative pl-6 border-l-2 border-orange-100">
+              <div className="relative pl-6 border-l-2 border-orange-100 dark:border-orange-800">
                 <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-orange-500 border-[3px] border-white" />
-                <h4 className="font-medium text-gray-900">Intern Developer</h4>
-                <p className="text-sm text-orange-600 mt-0.5">StartupXYZ</p>
-                <p className="text-sm text-gray-500 mt-0.5">
+                <h4 className="font-medium text-card-foreground">
+                  Intern Developer
+                </h4>
+                <p className="text-sm text-orange-600 dark:text-orange-400 mt-0.5">
+                  StartupXYZ
+                </p>
+                <p className="text-sm text-muted-foreground mt-0.5">
                   06/2023 - 12/2023
                 </p>
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Hỗ trợ phát triển features và fix bugs
                 </p>
               </div>
@@ -1143,10 +869,11 @@ export default function Component() {
           </div>
         </div>
       </div>
+
       {/* Footer */}
-      <footer className="bg-white border-t mt-12">
+      <footer className="bg-card border-t border-border mt-12">
         <div className="max-w-6xl mx-auto px-4 py-6 text-center">
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             © 2025 Trương Nguyễn Hoàng. Được tạo với ❤️ bằng Next.js và Tailwind
             CSS
           </p>
